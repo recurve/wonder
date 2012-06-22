@@ -27,9 +27,9 @@ import er.extensions.eof.ERXKey;
  * 	logger.debug(env.valueForKey(key));
  * </pre>
  * 
- * @param &lt;K&gt;
+ * @param <K>
  *            type of key contents
- * @param &lt;V&gt;
+ * @param <V>
  *            type of value contents
  */
 public class NSDictionary<K, V> implements Cloneable, Serializable, NSCoding, NSKeyValueCoding, NSKeyValueCodingAdditions, _NSFoundationCollection, Map<K, V> {
