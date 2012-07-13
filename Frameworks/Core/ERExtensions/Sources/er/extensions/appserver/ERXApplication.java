@@ -60,8 +60,14 @@ import com.webobjects.appserver.WOTimer;
 import com.webobjects.appserver._private.WOComponentDefinition;
 import com.webobjects.appserver._private.WODeployedBundle;
 import com.webobjects.appserver._private.WOProperties;
+import com.webobjects.eoaccess.EODatabaseContext;
+import com.webobjects.eoaccess.EOEntity;
+import com.webobjects.eoaccess.EOModel;
+import com.webobjects.eoaccess.EOModelGroup;
 import com.webobjects.eocontrol.EOEditingContext;
+import com.webobjects.eocontrol.EOFetchSpecification;
 import com.webobjects.eocontrol.EOObserverCenter;
+import com.webobjects.eocontrol.EOSharedEditingContext;
 import com.webobjects.eocontrol.EOTemporaryGlobalID;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSBundle;
@@ -1289,10 +1295,28 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	public final void finishInitialization(NSNotification n) {
 		finishInitialization();
 		if (ERXMigrator.shouldMigrateAtStartup()) {
+			boolean originalSharedObjectLoadingSetting = EODatabaseContext.isSharedObjectLoadingEnabled();
+			if (originalSharedObjectLoadingSetting) {
+				EODatabaseContext.setSharedObjectLoadingEnabled(false);
+			}
 			ERXMigrator migrator = migrator();
 			migrationsWillRun(migrator);
 			migrator.migrateToLatest();
 			migrationsDidRun(migrator);
+			if (originalSharedObjectLoadingSetting) {
+				EODatabaseContext.setSharedObjectLoadingEnabled(originalSharedObjectLoadingSetting);
+				for (EOModel model : EOModelGroup.defaultGroup().models()) {
+					for (EOEntity entity : model.entitiesWithSharedObjects()) {
+						for (String fetchSpecName : entity.sharedObjectFetchSpecificationNames()) {
+							EOSharedEditingContext sec = EOSharedEditingContext.defaultSharedEditingContext();
+							EOFetchSpecification fetchSpec = entity.fetchSpecificationNamed(fetchSpecName);
+							if (fetchSpec != null) {
+								sec.bindObjectsWithFetchSpecification(fetchSpec, fetchSpecName);
+							}
+						}
+					}
+				}
+			}
 		}
     NSNotificationCenter.defaultCenter().postNotification(new NSNotification(ERXApplication.ApplicationDidFinishInitializationNotification, this));
 	}
