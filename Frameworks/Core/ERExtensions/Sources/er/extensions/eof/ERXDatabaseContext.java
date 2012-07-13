@@ -7,10 +7,14 @@ import com.webobjects.eoaccess.EODatabase;
 import com.webobjects.eoaccess.EODatabaseContext;
 import com.webobjects.eoaccess.EODatabaseOperation;
 import com.webobjects.eoaccess.EOEntity;
+import com.webobjects.eoaccess.EOModel;
+import com.webobjects.eoaccess.EOModelGroup;
 import com.webobjects.eoaccess.ERXEOAccessHelper;
 import com.webobjects.eocontrol.EOEditingContext;
 import com.webobjects.eocontrol.EOFetchSpecification;
 import com.webobjects.eocontrol.EOGlobalID;
+import com.webobjects.eocontrol.EOObjectStoreCoordinator;
+import com.webobjects.eocontrol.EOSharedEditingContext;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSKeyValueCoding;
@@ -129,4 +133,38 @@ public class ERXDatabaseContext extends EODatabaseContext {
 
 		}
 	}
+
+	/**
+	 * Method to manually load (or reload) all shared EOs by iterating through all the models
+	 * 
+	 * @param sharedEC
+	 * 
+	 * @author David Avendasora
+	 * @since Jul 13, 2012
+	 */
+	public static void loadSharedObjects(EOSharedEditingContext sharedEC) {
+		sharedEC.lock();
+		EOModelGroup modelGroup = EOModelGroup.defaultGroup();
+		NSArray<EOModel> models = modelGroup.models();
+		try {
+			for (EOModel model : models) {
+				for (EOEntity entity : model.entitiesWithSharedObjects()) {
+					for (String fetchSpecName : entity.sharedObjectFetchSpecificationNames()) {
+						EOFetchSpecification fetchSpec = entity.fetchSpecificationNamed(fetchSpecName);
+						if (fetchSpec != null) {
+							sharedEC.bindObjectsWithFetchSpecification(fetchSpec, fetchSpecName);
+						}
+					}
+				}
+			}
+		}
+		catch (Throwable t) {
+			log.error("error" + t);
+			t.printStackTrace();
+		}
+		finally {
+			sharedEC.unlock();
+		}
+	}
+	
 }

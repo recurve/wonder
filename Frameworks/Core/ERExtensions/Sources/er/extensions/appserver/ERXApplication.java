@@ -61,11 +61,8 @@ import com.webobjects.appserver._private.WOComponentDefinition;
 import com.webobjects.appserver._private.WODeployedBundle;
 import com.webobjects.appserver._private.WOProperties;
 import com.webobjects.eoaccess.EODatabaseContext;
-import com.webobjects.eoaccess.EOEntity;
-import com.webobjects.eoaccess.EOModel;
-import com.webobjects.eoaccess.EOModelGroup;
 import com.webobjects.eocontrol.EOEditingContext;
-import com.webobjects.eocontrol.EOFetchSpecification;
+import com.webobjects.eocontrol.EOObjectStoreCoordinator;
 import com.webobjects.eocontrol.EOObserverCenter;
 import com.webobjects.eocontrol.EOSharedEditingContext;
 import com.webobjects.eocontrol.EOTemporaryGlobalID;
@@ -101,6 +98,7 @@ import er.extensions.components._private.ERXWOString;
 import er.extensions.components._private.ERXWOText;
 import er.extensions.components._private.ERXWOTextField;
 import er.extensions.eof.ERXConstant;
+import er.extensions.eof.ERXDatabaseContext;
 import er.extensions.eof.ERXDatabaseContextDelegate;
 import er.extensions.eof.ERXEC;
 import er.extensions.formatters.ERXFormatterFactory;
@@ -296,6 +294,8 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 * Tracks whether or not _addAdditionalAdaptors has been called yet.
 	 */
 	protected boolean _initializedAdaptors = false;
+
+	private boolean _isSharedObjectLoadingEnabledCachedValue;
 
 	/**
 	 * Copies the props from the command line to the static dict
@@ -1295,38 +1295,23 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	public final void finishInitialization(NSNotification n) {
 		finishInitialization();
 		if (ERXMigrator.shouldMigrateAtStartup()) {
-			boolean originalSharedObjectLoadingSetting = EODatabaseContext.isSharedObjectLoadingEnabled();
-			if (originalSharedObjectLoadingSetting) {
-				EODatabaseContext.setSharedObjectLoadingEnabled(false);
-			}
 			ERXMigrator migrator = migrator();
 			migrationsWillRun(migrator);
 			migrator.migrateToLatest();
 			migrationsDidRun(migrator);
-			if (originalSharedObjectLoadingSetting) {
-				EODatabaseContext.setSharedObjectLoadingEnabled(originalSharedObjectLoadingSetting);
-				for (EOModel model : EOModelGroup.defaultGroup().models()) {
-					for (EOEntity entity : model.entitiesWithSharedObjects()) {
-						for (String fetchSpecName : entity.sharedObjectFetchSpecificationNames()) {
-							EOSharedEditingContext sec = EOSharedEditingContext.defaultSharedEditingContext();
-							EOFetchSpecification fetchSpec = entity.fetchSpecificationNamed(fetchSpecName);
-							if (fetchSpec != null) {
-								sec.bindObjectsWithFetchSpecification(fetchSpec, fetchSpecName);
-							}
-						}
-					}
-				}
-			}
 		}
-    NSNotificationCenter.defaultCenter().postNotification(new NSNotification(ERXApplication.ApplicationDidFinishInitializationNotification, this));
+		NSNotificationCenter.defaultCenter().postNotification(new NSNotification(ERXApplication.ApplicationDidFinishInitializationNotification, this));
 	}
-	
+
 	/**
 	 * Called prior to migrations running.
 	 * @param migrator the migrator that will be used
 	 */
 	protected void migrationsWillRun(ERXMigrator migrator) {
-		// DO NOTHING
+		_isSharedObjectLoadingEnabledCachedValue = ERXDatabaseContext.isSharedObjectLoadingEnabled();
+		if (ERXDatabaseContext.isSharedObjectLoadingEnabled()) {
+			ERXDatabaseContext.setSharedObjectLoadingEnabled(false);
+		}
 	}
 	
 	/**
@@ -1334,7 +1319,11 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 * @param migrator the migrator that was used
 	 */
 	protected void migrationsDidRun(ERXMigrator migrator) {
-		// DO NOTHING
+		if (_isSharedObjectLoadingEnabledCachedValue) {
+			ERXDatabaseContext.setSharedObjectLoadingEnabled(true);
+			EOSharedEditingContext sharedEC = EOSharedEditingContext.defaultSharedEditingContext();
+			ERXDatabaseContext.loadSharedObjects(sharedEC);
+		}
 	}
 
 	/**
