@@ -690,11 +690,32 @@ public class ERXSQLHelper {
 	 * @return the generated read format
 	 */
 	public String readFormatForAggregateFunction(String functionName, String columnName, String aggregateName) {
-		StringBuffer sb = new StringBuffer();
+		return readFormatForAggregateFunction(functionName, columnName, aggregateName, false);
+	}
+	
+	/**
+	 * Returns the attribute read format for an aggregate function for a
+	 * particular column with a name.
+	 * 
+	 * @param functionName
+	 *            the aggregate function to generate
+	 * @param columnName
+	 *            the column name to aggregate on
+	 * @param aggregateName
+	 *            the name to assign to the aggregate result
+	 * @param usesDistinct
+	 *            <code>true</code> if function should be used on distinct values
+	 * @return the generated read format
+	 */
+	public String readFormatForAggregateFunction(String functionName, String columnName, String aggregateName, boolean usesDistinct) {
+		StringBuilder sb = new StringBuilder();
 		sb.append(functionName);
-		sb.append("(");
+		sb.append('(');
+		if (usesDistinct) {
+			sb.append("distinct ");
+		}
 		sb.append(columnName);
-		sb.append(")");
+		sb.append(')');
 		if (aggregateName != null) {
 			sb.append(" AS ");
 			sb.append(aggregateName);
@@ -2375,28 +2396,31 @@ public class ERXSQLHelper {
 			return -1;
 		}
 		
+		@Override
 		public boolean handleDatabaseException(EODatabaseContext databaseContext, Throwable throwable) {
-			if(throwable instanceof EOGeneralAdaptorException) {
+			if (throwable instanceof EOGeneralAdaptorException) {
 				EOGeneralAdaptorException gae = (EOGeneralAdaptorException) throwable;
-				EOAdaptorOperation failedOperation = (EOAdaptorOperation) gae.userInfo().objectForKey(EOAdaptorChannel.FailedAdaptorOperationKey);
-				if(failedOperation != null) {
-					Throwable t = failedOperation.exception();
-					if(t instanceof JDBCAdaptorException) {
-						JDBCAdaptorException jdbcEx = (JDBCAdaptorException) t;
-						SQLException sqlEx = jdbcEx.sqlException();
-						if(sqlEx != null && UNIQUE_CONSTRAINT_EXCEPTION_STATE.equals(sqlEx.getSQLState())) {
-							String message = sqlEx.getMessage();
-							MessageFormat format = new MessageFormat(UNIQUE_CONSTRAINT_MESSAGE_FORMAT);
-							try {
-								Object[] objs = format.parse(message);
-								String idx = (String) objs[0];
-								ERXValidationFactory factory = ERXValidationFactory.defaultFactory();
-								String method = "UniqueConstraintException." + idx;
-								ERXValidationException ex = factory.createCustomException(null, method);
-								databaseContext.rollbackChanges();
-								throw ex;
-							} catch (ParseException	 pe) {
-								log.warn("Error parsing unique constraint exception message: " + message);
+				if (gae.userInfo() != null) {
+					EOAdaptorOperation failedOperation = (EOAdaptorOperation) gae.userInfo().objectForKey(EOAdaptorChannel.FailedAdaptorOperationKey);
+					if (failedOperation != null) {
+						Throwable t = failedOperation.exception();
+						if (t instanceof JDBCAdaptorException) {
+							JDBCAdaptorException jdbcEx = (JDBCAdaptorException) t;
+							SQLException sqlEx = jdbcEx.sqlException();
+							if (sqlEx != null && UNIQUE_CONSTRAINT_EXCEPTION_STATE.equals(sqlEx.getSQLState())) {
+								String message = sqlEx.getMessage();
+								MessageFormat format = new MessageFormat(UNIQUE_CONSTRAINT_MESSAGE_FORMAT);
+								try {
+									Object[] objs = format.parse(message);
+									String idx = (String) objs[0];
+									ERXValidationFactory factory = ERXValidationFactory.defaultFactory();
+									String method = "UniqueConstraintException." + idx;
+									ERXValidationException ex = factory.createCustomException(null, method);
+									databaseContext.rollbackChanges();
+									throw ex;
+								} catch (ParseException e) {
+									log.warn("Error parsing unique constraint exception message: " + message);
+								}
 							}
 						}
 					}
@@ -2404,7 +2428,6 @@ public class ERXSQLHelper {
 			}
 			return false;
 		}
-
 	}
 	
 	public static class FirebirdSQLHelper extends ERXSQLHelper {

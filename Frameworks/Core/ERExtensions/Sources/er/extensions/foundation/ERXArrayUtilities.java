@@ -57,12 +57,12 @@ public class ERXArrayUtilities extends Object {
     private static boolean initialized = false;
 
     /** Caches sort orderings for given keys */
-    private final static NSDictionary<String, NSSelector> _selectorsByKey=new NSDictionary<String, NSSelector>(new NSSelector [] {
+    private final static NSDictionary<String, NSSelector> _selectorsByKey = new NSDictionary<String, NSSelector>(new NSSelector[] {
         EOSortOrdering.CompareAscending,
         EOSortOrdering.CompareCaseInsensitiveAscending,
         EOSortOrdering.CompareCaseInsensitiveDescending,
         EOSortOrdering.CompareDescending,
-    }, new String [] {
+    }, new String[] {
         "compareAscending",
         "compareCaseInsensitiveAscending",
         "compareCaseInsensitiveDescending",
@@ -73,6 +73,7 @@ public class ERXArrayUtilities extends Object {
      * Simply utility method to create a concrete set object from an array.
      *
      * @param array of elements
+     * @return set created from given array
      */
     // CHECKME: Is this a value add?
     public static <T> NSSet<T> setFromArray(NSArray<T> array) {
@@ -83,19 +84,22 @@ public class ERXArrayUtilities extends Object {
     }
 
     /**
-     * The qualifiers EOSortOrdering.CompareAscending.. and friends are
+     * The qualifiers EOSortOrdering.CompareAscending and friends are
      * actually 'special' and processed in a different/faster way when
      * sorting than a selector that would be created by:
-     * new NSSelector("compareAscending", ObjectClassArray)
+     * <code>new NSSelector("compareAscending", ObjectClassArray)</code>
      * This method eases the pain on creating those selectors from a string.
      *
      * @param key sort key
+     * @return selector for the given sort ordering key or <code>null</code>
      */
     public static NSSelector sortSelectorWithKey(String key) {
-        NSSelector result=null;
-        if (key!=null && !key.equals("")) {
-            result=_selectorsByKey.objectForKey(key);
-            if (result==null) result=new NSSelector(key, ERXConstant.ObjectClassArray);
+        NSSelector result = null;
+        if (key != null && !key.equals("")) {
+            result = _selectorsByKey.objectForKey(key);
+            if (result == null) {
+            	result = new NSSelector(key, ERXConstant.ObjectClassArray);
+            }
         }
         return result;
     }
@@ -453,7 +457,7 @@ public class ERXArrayUtilities extends Object {
             if (!isNullKey || nullGroupingKey != null) {
                 if (isNullKey) key=nullGroupingKey;
                 NSArray array = (NSArray)key;
-                for(Enumeration keys = array.objectEnumerator(); keys.hasMoreElements(); ) {
+                for(@SuppressWarnings("null") Enumeration keys = array.objectEnumerator(); keys.hasMoreElements(); ) {
                     key = keys.nextElement();
                     NSMutableArray existingGroup=(NSMutableArray)result.objectForKey(key);
                     if (existingGroup==null) {
@@ -1070,11 +1074,9 @@ public class ERXArrayUtilities extends Object {
      * to the way the sort key arguments are written, this key cannot occur anywhere
      * except at the very end of the keypath.
      */
-    public static class SortOperator implements NSArray.Operator
-    {
+    public static class SortOperator implements NSArray.Operator {
         private NSSelector selector;
         
-        /** public empty constructor */
         public SortOperator(NSSelector selector) {
             this.selector = selector;
         }
@@ -1112,10 +1114,9 @@ public class ERXArrayUtilities extends Object {
      * 
      * @see BaseOperator
      */
-    public static class FetchSpecOperator extends BaseOperator
-    {
-        /** public empty constructor */
-        public FetchSpecOperator() {}
+    public static class FetchSpecOperator extends BaseOperator {
+        public FetchSpecOperator() {
+        }
         
         /**
          * Filters and sorts the given array by the named fetchspecification.
@@ -1152,8 +1153,8 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class FlattenOperator extends BaseOperator {
-        /** public empty constructor */
-        public FlattenOperator() {}
+        public FlattenOperator() {
+        }
 
         /**
         * Flattens the given array.
@@ -1182,8 +1183,8 @@ public class ERXArrayUtilities extends Object {
      * 
      */
     public static class IsEmptyOperator implements NSArray.Operator {
-        /** public empty constructor */
-        public IsEmptyOperator() {}
+        public IsEmptyOperator() {
+        }
 
         /**
         * returns true if the given array is empty, usefull for WOHyperlink disabled binding.
@@ -1214,8 +1215,8 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class SubarrayWithRangeOperator extends BaseOperator {
-        /** public empty constructor */
-        public SubarrayWithRangeOperator() {}
+        public SubarrayWithRangeOperator() {
+        }
 
         /**
          * @param array array to truncate
@@ -1263,11 +1264,7 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class LimitOperator extends BaseOperator {
-        /**
-         * Constructs a new LimitOperator
-         **/
         public LimitOperator() {
-        	// DO NOTHING
         }
 
         /**
@@ -1311,7 +1308,6 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class UniqueOperator extends BaseOperator {
-        /** public empty constructor */
         public UniqueOperator() {
         }
 
@@ -1345,7 +1341,6 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class RemoveNullValuesOperator extends BaseOperator {
-        /** public empty constructor */
         public RemoveNullValuesOperator() {
         }
 
@@ -1374,8 +1369,8 @@ public class ERXArrayUtilities extends Object {
      *
      */
     public static class ObjectAtIndexOperator implements NSArray.Operator {
-        /** public empty constructor */
-        public ObjectAtIndexOperator() {}
+        public ObjectAtIndexOperator() {
+        }
 
         /**
          * returns the keypath value for n-ths object.
@@ -1419,8 +1414,8 @@ public class ERXArrayUtilities extends Object {
      * Apple's standard NSArray operators.
      */
     public static class AvgNonNullOperator implements NSArray.Operator {
-        /** public empty constructor */
-        public AvgNonNullOperator() {}
+        public AvgNonNullOperator() {
+        }
 
         /**
          * returns the average value for over all non-null values.
@@ -1465,8 +1460,8 @@ public class ERXArrayUtilities extends Object {
      * @see BaseOperator
      */
     public static class ReverseOperator extends BaseOperator {
-        /** public empty constructor */
-        public ReverseOperator() {}
+        public ReverseOperator() {
+        }
 
         /**
          * returns the reverse value for the values of the keypath.
@@ -1507,8 +1502,8 @@ public class ERXArrayUtilities extends Object {
      * Apple's standard NSArray operators.
      */
     public static class MedianOperator implements NSArray.Operator {
-        /** public empty constructor */
-        public MedianOperator() {}
+        public MedianOperator() {
+        }
 
         /**
          * returns the median value for the values of the keypath.
@@ -2078,7 +2073,13 @@ public class ERXArrayUtilities extends Object {
     }
 
     /**
-     * Calls dictionaryOfObjectsIndexedByKeyPathThrowOnCollision() passing false for throwOnCollision.
+     * Calls <code>dictionaryOfObjectsIndexedByKeyPathThrowOnCollision()</code> passing <code>false</code> for throwOnCollision.
+     * 
+     * @param array array to index
+     * @param keyPath keyPath to index. If any object returns <code>null</code> or NSKeyValueCoding.NullValue for this keyPath, the
+     *        object is not put into the resulting dictionary.
+     * @return a dictionary indexing the given array. If array is <code>null</code>, an empty dictionary is returned.
+     * @see #dictionaryOfObjectsIndexedByKeyPathThrowOnCollision(NSArray, String, boolean)
      */
     public static <K, T> NSDictionary<K, T> dictionaryOfObjectsIndexedByKeyPath(final NSArray<T> array, final String keyPath) {
         return dictionaryOfObjectsIndexedByKeyPathThrowOnCollision(array, keyPath, false);
@@ -2086,19 +2087,19 @@ public class ERXArrayUtilities extends Object {
 
     /**
      * Given an array of objects, returns a dictionary mapping the value by performing valueForKeyPath on each object in
-     * the array to the object in the array.  This is similar in concept to but different in semantic from
-     * <code>arrayGroupedByKeyPath()</code>.  That method is focused on multiple objects returning the same value for the keypath
-     * and, so, objects are grouped into arrays.  That is not particularly useful when there aren't collisions in the array or when
-     * you don't care if there are collisions.  For example, with a CreditCard EO object, one could rely on the paymentType.name value
-     * to be unique and thus you're more interested in being able to rapidly get to the EO.  <code>arrayGroupedByKeyPath()</code>
-     * would require either flattening out the arrays or navigating them everytime.
+     * the array to the object in the array. This is similar in concept to but different in semantic from
+     * <code>arrayGroupedByKeyPath()</code>. That method is focused on multiple objects returning the same value for the keypath
+     * and, so, objects are grouped into arrays. That is not particularly useful when there aren't collisions in the array or when
+     * you don't care if there are collisions. For example, with a CreditCard EO object, one could rely on the paymentType.name value
+     * to be unique and thus you're more interested in being able to rapidly get to the EO. <code>arrayGroupedByKeyPath()</code>
+     * would require either flattening out the arrays or navigating to them every time.
      *
      * @param array array to index
-     * @param keyPath keyPath to index.  if any object returns null of NSKeyValueCoding.NullValue for this keyPath, the
+     * @param keyPath keyPath to index. If any object returns <code>null</code> or NSKeyValueCoding.NullValue for this keyPath, the
      *        object is not put into the resulting dictionary.
-     * @param throwOnCollision if true and two objects in the array have the same non-null (or non-NullValue) value for keyPath,
-     *        an exception is thrown.  if false, the last object in the array wins.
-     * @return a dictionary indexing the given array.  if array is null, an empty dictionary is returned.
+     * @param throwOnCollision if <code>true</code> and two objects in the array have the same non-null (or non-NullValue) value for keyPath,
+     *        an exception is thrown. If <code>false</code>, the last object in the array wins.
+     * @return a dictionary indexing the given array. If array is <code>null</code>, an empty dictionary is returned.
      */
     public static <K, T> NSDictionary<K, T> dictionaryOfObjectsIndexedByKeyPathThrowOnCollision(final NSArray<T> array, final String keyPath, final boolean throwOnCollision) {
 		if (array == null)
