@@ -532,7 +532,7 @@ public class ERXSQLHelper {
 	}
 
 	/**
-	 * Returns the last of attributes to fetch for a fetch spec. The entity is
+	 * Returns the list of attributes to fetch for a fetch spec. The entity is
 	 * passed in here because it has likely already been looked up for the
 	 * particular fetch spec.
 	 * 
@@ -642,7 +642,7 @@ public class ERXSQLHelper {
 		}
 		EOSQLExpression sqlExpr = sqlFactory.selectStatementForAttributes(attributes, false, spec, entity);
 		String sql = sqlExpr.statement();
-		if(spec.hints() != null && !spec.hints().isEmpty() && !(spec.hints().valueForKey(EODatabaseContext.CustomQueryExpressionHintKey) == null)) {
+		if (spec.hints() != null && !spec.hints().isEmpty() && spec.hints().valueForKey(EODatabaseContext.CustomQueryExpressionHintKey) != null) {
 			Object hint = spec.hints().valueForKey(EODatabaseContext.CustomQueryExpressionHintKey);
 			sql = customQueryExpressionHintAsString(hint);
 		}
@@ -1131,30 +1131,27 @@ public class ERXSQLHelper {
 		if (spec.hints() == null || spec.hints().isEmpty() || spec.hints().valueForKey(EODatabaseContext.CustomQueryExpressionHintKey) == null) {
 			// no hints
 			if (spec.fetchLimit() > 0 || spec.sortOrderings() != null) {
-				boolean usesDistinct=spec.usesDistinct();
+				boolean usesDistinct = spec.usesDistinct();
 				spec = new EOFetchSpecification(spec.entityName(), spec.qualifier(), null);
 				spec.setUsesDistinct(usesDistinct);
 			}
 
 			EOSQLExpression sqlExpression = sqlExpressionForFetchSpecification(ec, spec, 0, -1);
 			String statement = sqlExpression.statement();
-			int index = statement.toLowerCase().indexOf(" from ");
+			String listString = sqlExpression.listString();
 
 			String countExpression;
 			if (spec.usesDistinct()) {
-				NSArray primaryKeyAttributeNames = entity.primaryKeyAttributeNames();
+				NSArray<String> primaryKeyAttributeNames = entity.primaryKeyAttributeNames();
 				if (primaryKeyAttributeNames.count() > 1)
 					log.warn("Composite primary keys are currently unsupported in rowCountForFetchSpecification, when the spec uses distinct");
-				String pkAttributeName = (String) primaryKeyAttributeNames.lastObject();
+				String pkAttributeName = primaryKeyAttributeNames.lastObject();
 				String pkColumnName = entity.attributeNamed(pkAttributeName).columnName();
-				countExpression = "count(distinct " +
-						quoteColumnName("t0." + pkColumnName) 
-						+ ") ";
-			}
-			else {
+				countExpression = "count(distinct " + quoteColumnName("t0." + pkColumnName) + ") ";
+			} else {
 				countExpression = "count(*) ";
 			}
-			statement = (new StringBuilder()).append("select ").append(countExpression).append(statement.substring(index, statement.length())).toString();
+			statement = statement.replace(listString, countExpression);
 			sqlExpression.setStatement(statement);
 			sql = statement;
 			result = ERXEOAccessUtilities.rawRowsForSQLExpression(ec, model.name(), sqlExpression);
