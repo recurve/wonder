@@ -1,5 +1,9 @@
 package er.ajax;
 
+/*
+ * Aaron Rosenzweig Sept. 18, 2012 
+ */
+
 import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOResponse;
@@ -34,6 +38,10 @@ import er.extensions.foundation.ERXStringUtilities;
  */
 
 public class AjaxHoverable extends WOComponent {
+	protected static final String AJAX_FRAMEWORK_NAME = "Ajax";
+	protected static final String LOCAL_CSS_FILE = "ajaxHoverable.css";
+	protected static final String LOCAL_JS_FILE = "ajaxHoverable.js";
+	
 	protected String _idStr = null;
 
 	public AjaxHoverable(WOContext context) {
@@ -45,8 +53,8 @@ public class AjaxHoverable extends WOComponent {
 	}
 	
 	public static void addWebResourcesInHead(WOResponse response, WOContext context) {
-		AjaxUtils.addStylesheetResourceInHead(context, response, "Ajax", "ajaxHoverable.css");
-		AjaxUtils.addScriptResourceInHead(context, response, "Ajax", "ajaxHoverable.js");
+		AjaxUtils.addStylesheetResourceInHead(context, response, AJAX_FRAMEWORK_NAME, LOCAL_CSS_FILE);
+		AjaxUtils.addScriptResourceInHead(context, response, AJAX_FRAMEWORK_NAME, LOCAL_JS_FILE);
 	}
 	
 	public void appendToResponse(WOResponse response, WOContext context) {
