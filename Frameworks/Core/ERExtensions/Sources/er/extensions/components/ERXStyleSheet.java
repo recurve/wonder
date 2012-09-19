@@ -229,12 +229,6 @@ public class ERXStyleSheet extends ERXStatelessComponent {
 				}
 				md5 = cachedResponse.headerForKey( "checksum" );
 				NSDictionary query = new NSDictionary<String, String>( md5, "checksum" );
-//				href = wocontext.directActionURLForActionNamed( 
-//							Sheet.class.getName() + "/" + key, 
-//							query, 
-//							(wocontext.request() != null ? wocontext.request().isSecure() : false), 
-//							0 /*port*/, 
-//							false /*escape*/);
 				// (AR) get relative URL so we preserve SSL, etc.
 				String requestHandlerKey = application().directActionRequestHandlerKey();
 				href = wocontext.urlWithRequestHandlerKey(requestHandlerKey, Sheet.class.getName() + "/" + key, "checksum=" + md5);
