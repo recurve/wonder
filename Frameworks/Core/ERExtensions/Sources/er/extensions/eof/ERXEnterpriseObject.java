@@ -503,7 +503,7 @@ public interface ERXEnterpriseObject extends EOEnterpriseObject {
      * @param eo to local instance
      * @return an EO in the same editing context as the caller.
      */
-    public abstract <T extends EOEnterpriseObject> T localInstanceOf(T eo);
+    public abstract EOEnterpriseObject localInstanceOf(EOEnterpriseObject eo);
 
     /**
      * Returns this EO in the supplied editing context.
@@ -511,10 +511,11 @@ public interface ERXEnterpriseObject extends EOEnterpriseObject {
      * @param ec editing context to local instance in
      * @return this EO in the supplied editing context.
      */
-    public abstract <T extends EOEnterpriseObject> T localInstanceIn(EOEditingContext ec);
+    public abstract EOEnterpriseObject localInstanceIn(EOEditingContext ec);
 
     /**
      * Returns an array of EOs in the same editing context as the caller.
+     * @param <T> 
      * 
      * @param eos array of EOs to local instance
      * @return array of EOs in the same editing context as the caller.
