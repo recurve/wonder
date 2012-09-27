@@ -226,6 +226,10 @@ public class ERXStyleSheet extends ERXStatelessComponent {
 					cache.setObjectForKey( cachedResponse, key );
 					md5 = ERXStringUtilities.md5Hex( cachedResponse.contentString(), null );
 					cachedResponse.setHeader( md5, "checksum" );
+				} else {
+					// (AR) we could be on the borderline, need to recache old value or 
+					// risk not delivering it as a direct action
+					cache.setObjectForKey( cachedResponse, key );
 				}
 				md5 = cachedResponse.headerForKey( "checksum" );
 				NSDictionary query = new NSDictionary<String, String>( md5, "checksum" );
