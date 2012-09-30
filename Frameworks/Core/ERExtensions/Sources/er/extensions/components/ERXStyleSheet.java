@@ -73,8 +73,12 @@ public class ERXStyleSheet extends ERXStatelessComponent {
 	private static ERXExpiringCache<String, WOResponse> cache( WOSession session ) {
 		ERXExpiringCache<String, WOResponse> cache = (ERXExpiringCache<String, WOResponse>)session.objectForKey( "ERXStylesheet.cache" );
 		if( cache == null ) {
-			cache = new ERXExpiringCache<String, WOResponse>( 60 );
-			cache.startBackgroundExpiration();
+			// (AR) Sorry but this expiring cache was set at 60 seconds but that won't do.
+			// A infinite value is now used that never expires. It is effectively an NSDictionary at this setting. 
+			// We are getting many errors when the DA tries to pull from the cache but it is 
+			// expired and there is nothing to pull. I have tried to work around this problem
+			// by fixing small issues here and in the ExpiringCache but this issue persists.
+			cache = new ERXExpiringCache<String, WOResponse>( ERXExpiringCache.NO_TIMEOUT );
 			session.setObjectForKey( cache, "ERXStylesheet.cache" );
 		}
 		return cache;
