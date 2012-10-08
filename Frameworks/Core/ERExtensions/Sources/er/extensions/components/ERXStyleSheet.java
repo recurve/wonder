@@ -92,11 +92,14 @@ public class ERXStyleSheet extends ERXStatelessComponent {
 		@Override
 		public WOActionResults performActionNamed( String name ) {
 			WOResponse response = ERXStyleSheet.cache( session() ).objectForKey( name );
-			String md5 = ERXStringUtilities.md5Hex( response.contentString(), null );
-			String queryMd5 = response.headerForKey( "checksum" );
-			if( ERXExtensions.safeEquals( md5, queryMd5 ) ) {
-				//TODO check for last-whatever time and return not modified if not changed
+			if (response != null) {
+				String md5 = ERXStringUtilities.md5Hex( response.contentString(), null );
+				String queryMd5 = response.headerForKey( "checksum" );
+				if( ERXExtensions.safeEquals( md5, queryMd5 ) ) {
+					//TODO check for last-whatever time and return not modified if not changed
+				}
 			}
+
 			return response;
 		}
 	}
