@@ -56,6 +56,10 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
 
 	public static final Logger log = Logger.getLogger(ERXExistsQualifier.class);
 	public static final String EXISTS_ALIAS = "exists";
+	// an EXISTS can be rewritten as an IN and vice versa. Which is faster depends 
+	// on both the database and the data itself. If one is slow for you, try the other 
+	// by flipping this boolean flag.
+	protected boolean usesInQualInstead = false;
 
     /** Register SQL generation support for the qualifier. */
     static {
@@ -90,6 +94,18 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
 		this.baseKeyPath = baseKeyPath;
 	}
 
+    /**
+	 * Public three argument constructor. Use this constructor when you want to try converting the EXISTS into an IN clause
+	 * @param subqualifier sub qualifier
+	 * @param baseKeyPath to the entity to which the subqualifier will be applied.  Note that this should end in a
+     * relationship rather than an attribute, e.g., the key path from an Employee might be <code>department.division</code>.
+     * @param usesInQualInstead when true will convert the EXISTS clause into an IN clause - to be used if it makes the query plan faster.
+	 */
+    public ERXExistsQualifier(EOQualifier subqualifier, String baseKeyPath, boolean usesInQualInstead) {
+		this(subqualifier, baseKeyPath);
+		setUsesInQualInstead(usesInQualInstead);
+	}
+    
     /**
      * Gets the subqualifier that will be applied in the exists clause.
      * @return the subqualifier
@@ -247,12 +263,33 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
             subExprStr = ERXStringUtilities.replaceStringByStringInString("T9", EXISTS_ALIAS + "9", subExprStr);
             
             StringBuffer sb = new StringBuffer();
-            sb.append(" EXISTS ( ");
+            if (existsQualifier.usesInQualInstead()) {
+            	// (AR) Write the IN clause
+                EOAttribute sourcePK = srcEntity.primaryKeyAttributes().lastObject();
+                String srcEntityPrimaryKey = expression.sqlStringForAttribute(sourcePK);
+                sb.append(srcEntityPrimaryKey);
+                sb.append(" IN ( ");
+                
+                // (AR) Rewrite first SELECT part of subExprStr
+                EOAttribute destPK = destEntity.primaryKeyAttributes().lastObject();
+                String destEntityPrimaryKey = expression.sqlStringForAttribute(destPK);
+                int indexOfFirstPeriod = destEntityPrimaryKey.indexOf(".");
+                destEntityPrimaryKey = destEntityPrimaryKey.substring(indexOfFirstPeriod);
+                int boo = -1;
+                subExprStr = ERXStringUtilities.replaceStringByStringInString(
+                		"SELECT " + EXISTS_ALIAS + "0" + destEntityPrimaryKey + " FROM", 
+                		"SELECT " + EXISTS_ALIAS + "0" + destEntityForeignKey + " FROM", 
+                		subExprStr);
+            } else {
+                sb.append(" EXISTS ( ");
+            }
             sb.append(subExprStr);
-            sb.append(" AND ");
-            sb.append(EXISTS_ALIAS + "0" + destEntityForeignKey);
-            sb.append(" = ");
-            sb.append(ERXStringUtilities.replaceStringByStringInString("t0.", sourceTableAlias + ".", srcEntityForeignKey));
+            if ( ! existsQualifier.usesInQualInstead()) {
+                sb.append(" AND ");
+                sb.append(EXISTS_ALIAS + "0" + destEntityForeignKey);
+                sb.append(" = ");
+                sb.append(ERXStringUtilities.replaceStringByStringInString("t0.", sourceTableAlias + ".", srcEntityForeignKey));
+            }
             sb.append(" ) ");
             return sb.toString();
         }
@@ -352,7 +389,7 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
 	 * @return cloned qualifier
 	 */
 	public Object clone() {
-		return new ERXExistsQualifier(subqualifier, baseKeyPath);
+		return new ERXExistsQualifier(subqualifier, baseKeyPath, usesInQualInstead());
 	}
 
     public Class classForCoder() {
@@ -410,6 +447,14 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
 			}
 		}
 		return match;
+	}
+
+	public boolean usesInQualInstead() {
+		return usesInQualInstead;
+	}
+
+	public void setUsesInQualInstead(boolean usesInQualInstead) {
+		this.usesInQualInstead = usesInQualInstead;
 	}
 	
 }
