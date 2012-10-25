@@ -1355,7 +1355,7 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	protected void migrationsDidRun(ERXMigrator migrator) {
 		if (_isSharedObjectLoadingEnabledCachedValue) {
 			ERXDatabaseContext.setSharedObjectLoadingEnabled(true);
-			EOSharedEditingContext sharedEC = EOSharedEditingContext.defaultSharedEditingContext();
+			EOSharedEditingContext sharedEC = EOSharedEditingContext._defaultSharedEditingContext();
 			ERXDatabaseContext.loadSharedObjects(sharedEC);
 		}
 	}

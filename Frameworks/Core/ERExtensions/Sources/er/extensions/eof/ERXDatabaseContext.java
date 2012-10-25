@@ -149,32 +149,34 @@ public class ERXDatabaseContext extends EODatabaseContext {
 	 * @since Jul 13, 2012
 	 */
 	public static synchronized void loadSharedObjects(EOSharedEditingContext sharedEC) {
-		EOModelGroup modelGroup = EOModelGroup.defaultGroup();
-		NSArray<EOModel> models = modelGroup.models().immutableClone();
-		for (EOModel model : models) {
-			String modelFileName = model.name() + ".eomodeld";
-			NSArray<EOEntity> entitiesWithSharedObjects = model.entitiesWithSharedObjects().immutableClone();
-			for (EOEntity entity : entitiesWithSharedObjects) {
-				String entityFileName = modelFileName + File.pathSeparator + entity.name() + ".plist";
-				NSArray<String> sharedObjectFetchSpecNames = entity.sharedObjectFetchSpecificationNames();
-				if (sharedObjectFetchSpecNames.containsObject(FETCH_ALL_FETCH_SPEC_NAME)) {
-					sharedObjectFetchSpecNames = new NSArray<String>(FETCH_ALL_FETCH_SPEC_NAME);
-				}
-				for (String fetchSpecName : sharedObjectFetchSpecNames) {
-					String fetchSpecFileName = modelFileName + File.pathSeparator + entity.name() + ".fspec";
-					EOFetchSpecification fetchSpec = entity.fetchSpecificationNamed(fetchSpecName);
-					if (fetchSpec != null) {
-						// no need to lock because the
-						// bindObjectsWithFetchSpecification(EOFetchSpecification, String)
-						// method is thread safe.
-						sharedEC.bindObjectsWithFetchSpecification(fetchSpec, fetchSpecName);
+		if (sharedEC != null) {
+			EOModelGroup modelGroup = EOModelGroup.defaultGroup();
+			NSArray<EOModel> models = modelGroup.models().immutableClone();
+			for (EOModel model : models) {
+				String modelFileName = model.name() + ".eomodeld";
+				NSArray<EOEntity> entitiesWithSharedObjects = model.entitiesWithSharedObjects().immutableClone();
+				for (EOEntity entity : entitiesWithSharedObjects) {
+					String entityFileName = modelFileName + File.pathSeparator + entity.name() + ".plist";
+					NSArray<String> sharedObjectFetchSpecNames = entity.sharedObjectFetchSpecificationNames();
+					if (sharedObjectFetchSpecNames.containsObject(FETCH_ALL_FETCH_SPEC_NAME)) {
+						sharedObjectFetchSpecNames = new NSArray<String>(FETCH_ALL_FETCH_SPEC_NAME);
 					}
-					else {
+					for (String fetchSpecName : sharedObjectFetchSpecNames) {
+						String fetchSpecFileName = modelFileName + File.pathSeparator + entity.name() + ".fspec";
+						EOFetchSpecification fetchSpec = entity.fetchSpecificationNamed(fetchSpecName);
+						if (fetchSpec != null) {
+							// no need to lock because the
+							// bindObjectsWithFetchSpecification(EOFetchSpecification, String)
+							// method is thread safe.
+							sharedEC.bindObjectsWithFetchSpecification(fetchSpec, fetchSpecName);
+						}
+						else {
 						log.warn("Problem found in Entity \"" + entity.name() + "\": \"" 
 								+ fetchSpecName + "\" is listed in the \"sharedObjectFetchSpecificationNames\" element of the \"" 
 								+ entityFileName + "\" file, but there is no corresponding \"" 
 								+ fetchSpecName + "\" element in the \"" 
 								+ fetchSpecFileName + "\" file.");
+						}
 					}
 				}
 			}
