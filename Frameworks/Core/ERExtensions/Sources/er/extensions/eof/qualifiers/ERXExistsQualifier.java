@@ -265,9 +265,7 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
             StringBuffer sb = new StringBuffer();
             if (existsQualifier.usesInQualInstead()) {
             	// (AR) Write the IN clause
-                EOAttribute sourcePK = srcEntity.primaryKeyAttributes().lastObject();
-                String srcEntityPrimaryKey = expression.sqlStringForAttribute(sourcePK);
-                sb.append(srcEntityPrimaryKey);
+                sb.append(srcEntityForeignKey);
                 sb.append(" IN ( ");
                 
                 // (AR) Rewrite first SELECT part of subExprStr
@@ -275,7 +273,6 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
                 String destEntityPrimaryKey = expression.sqlStringForAttribute(destPK);
                 int indexOfFirstPeriod = destEntityPrimaryKey.indexOf(".");
                 destEntityPrimaryKey = destEntityPrimaryKey.substring(indexOfFirstPeriod);
-                int boo = -1;
                 subExprStr = ERXStringUtilities.replaceStringByStringInString(
                 		"SELECT " + EXISTS_ALIAS + "0" + destEntityPrimaryKey + " FROM", 
                 		"SELECT " + EXISTS_ALIAS + "0" + destEntityForeignKey + " FROM", 
