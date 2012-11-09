@@ -1328,6 +1328,8 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 */
 	public final void finishInitialization(NSNotification n) {
 		finishInitialization();
+		boolean useSharedEditingContext = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXEC.useSharedEditingContext", true);
+		EODatabaseContext.setSharedObjectLoadingEnabled(useSharedEditingContext);
 		if (ERXMigrator.shouldMigrateAtStartup()) {
 			ERXMigrator migrator = migrator();
 			migrationsWillRun(migrator);
