@@ -1328,6 +1328,8 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 */
 	public final void finishInitialization(NSNotification n) {
 		finishInitialization();
+		boolean useSharedEditingContext = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXEC.useSharedEditingContext", true);
+		EODatabaseContext.setSharedObjectLoadingEnabled(useSharedEditingContext);
 		if (ERXMigrator.shouldMigrateAtStartup()) {
 			ERXMigrator migrator = migrator();
 			migrationsWillRun(migrator);
@@ -1342,8 +1344,10 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 * @param migrator the migrator that will be used
 	 */
 	protected void migrationsWillRun(ERXMigrator migrator) {
+		log.info("Migrations will run");
 		_isSharedObjectLoadingEnabledCachedValue = ERXDatabaseContext.isSharedObjectLoadingEnabled();
 		if (ERXDatabaseContext.isSharedObjectLoadingEnabled()) {
+			log.info("Disabling sharedObjectLoading so migrations can run without tripping it");
 			ERXDatabaseContext.setSharedObjectLoadingEnabled(false);
 		}
 	}
@@ -1354,10 +1358,13 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 */
 	protected void migrationsDidRun(ERXMigrator migrator) {
 		if (_isSharedObjectLoadingEnabledCachedValue) {
+			log.info("Re-enabling sharedObjectLoading");
 			ERXDatabaseContext.setSharedObjectLoadingEnabled(true);
 			EOSharedEditingContext sharedEC = EOSharedEditingContext._defaultSharedEditingContext();
+			log.info("Loading sharedObjects into EOSharedEditingContext '" + sharedEC + "' now.");
 			ERXDatabaseContext.loadSharedObjects(sharedEC);
 		}
+		log.info("Migrations did run");
 	}
 
 	/**
