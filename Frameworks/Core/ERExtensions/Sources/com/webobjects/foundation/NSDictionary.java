@@ -40,7 +40,7 @@ import er.extensions.eof.ERXKey;
  */
 public class NSDictionary<K, V> implements Cloneable, Serializable, NSCoding, NSKeyValueCoding, NSKeyValueCodingAdditions, _NSFoundationCollection, Map<K, V> {
   
-  static final long serialVersionUID = 2886170486405617806L;
+  static final long serialVersionUID = 2886170486405617807L;
 
 	public class _JavaNSDictionaryMapEntry<P, Q> implements java.util.Map.Entry<P, Q> {
 
