@@ -1198,6 +1198,11 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 		Long timestampLag = Long.getLong("EOEditingContextDefaultFetchTimestampLag");
 		if (timestampLag != null)
 			EOEditingContext.setDefaultFetchTimestampLag(timestampLag.longValue());
+		
+		Integer pageCacheSizeProperty = Integer.getInteger("WOSetPageCacheSize");
+		if (pageCacheSizeProperty != null) {
+			setPageCacheSize(pageCacheSizeProperty.intValue());
+		}
 
 		String defaultEncoding = System.getProperty("er.extensions.ERXApplication.DefaultEncoding");
 		if (defaultEncoding != null) {
