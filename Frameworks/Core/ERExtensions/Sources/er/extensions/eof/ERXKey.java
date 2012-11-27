@@ -74,7 +74,7 @@ public class ERXKey<T> {
 	private static final ERXKey<?> SUBARRAY_WITH_RANGE = new ERXKey<Object>("@subarrayWithRange");
 	private static final ERXKey<?> UNIQUE = new ERXKey<Object>("@unique");
 
-	public static class ERXKeyPath extends NSMutableArray<ERXKey<?>> {
+	public static class ERXKeyPath<E extends ERXKey<?>> extends NSMutableArray<E> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -94,7 +94,7 @@ public class ERXKey<T> {
 		 *            the key to add
 		 * @author David Avendasora
 		 */
-		public ERXKeyPath(ERXKey erxKey) {
+		public ERXKeyPath(E erxKey) {
 			super(erxKey);
 		}
 
@@ -105,7 +105,7 @@ public class ERXKey<T> {
 		 *            the keys to add
 		 * @author David Avendasora
 		 */
-		public ERXKeyPath(ERXKey<?>... erxKeys) {
+		public ERXKeyPath(E... erxKeys) {
 			super(erxKeys);
 		}
 
@@ -116,7 +116,7 @@ public class ERXKey<T> {
 		 *            the keys to add
 		 * @author David Avendasora
 		 */
-		public ERXKeyPath(NSArray<ERXKey<?>> erxKeys) {
+		public ERXKeyPath(NSArray<E> erxKeys) {
 			super(erxKeys);
 		}
 
@@ -129,7 +129,7 @@ public class ERXKey<T> {
 		 * @return this (with the key appended)
 		 * @author David Avendasora
 		 */
-		public ERXKeyPath append(ERXKey<?> nextERXKey) {
+		public ERXKeyPath<E> append(E nextERXKey) {
 			addObject(nextERXKey);
 			return this;
 		}
@@ -143,8 +143,8 @@ public class ERXKey<T> {
 		 * @author David Avendasora
 		 * @see ERXKeyPath#dot(NSArray)
 		 */
-		public ERXKeyPath dot(ERXKey<?> nextERXKey) {
-			append(nextERXKey);
+		public ERXKeyPath<E> dot(E nextERXKey) {
+			this.append(nextERXKey);
 			return this;
 		}
 
@@ -158,7 +158,7 @@ public class ERXKey<T> {
 		 * @author David Avendasora
 		 * @see ERXKeyPath#append(ERXKey)
 		 */
-		public ERXKeyPath append(NSArray<ERXKey<?>> nextERXKeys) {
+		public ERXKeyPath append(NSArray<E> nextERXKeys) {
 			addObjectsFromArray(nextERXKeys);
 			return this;
 		}
@@ -172,7 +172,7 @@ public class ERXKey<T> {
 		 * @author David Avendasora
 		 * @see ERXKeyPath#dot(ERXKey)
 		 */
-		public ERXKeyPath dot(NSArray<ERXKey<?>> nextERXKeys) {
+		public ERXKeyPath dot(NSArray<E> nextERXKeys) {
 			append(nextERXKeys);
 			return this;
 		}
@@ -216,7 +216,7 @@ public class ERXKey<T> {
 		 * @param <U>
 		 * @return a simple ERXKey for {@link #key()}
 		 * 
-		 * @author davendasora
+		 * @author David Avendasora
 		 * @since May 7, 2012
 		 */
 		public <U> ERXKey<U> erxKey() {
@@ -241,12 +241,12 @@ public class ERXKey<T> {
 		 * 
 		 * @see ERXArrayUtilities#removeNullValues(NSArray)
 		 * 
-		 * @author davendasora
+		 * @author David Avendasora
 		 * @since May 7, 2012
 		 */
 		public ERXKeyPath atRemoveNullValues() {
 			ERXKeyPath fullKeyPath = new ERXKeyPath();
-			NSArray<ERXKey<?>> clonedKeyPath = this.immutableClone();
+			NSArray<E> clonedKeyPath = this.immutableClone();
 			int thisKeyIndex = 0;
 			for (ERXKey<?> thisKey : clonedKeyPath) {
 				ERXKeyPath keyPath = new ERXKeyPath();
@@ -323,7 +323,7 @@ public class ERXKey<T> {
 		 */
 		public ERXKeyPath atUnique() {
 			ERXKeyPath fullKeyPath = new ERXKeyPath();
-			NSArray<ERXKey<?>> clonedKeyPath = this.immutableClone();
+			NSArray<E> clonedKeyPath = this.immutableClone();
 			for (ERXKey<?> thisKey : clonedKeyPath) {
 				ERXKeyPath keyPath = new ERXKeyPath();
 				
@@ -1782,13 +1782,13 @@ public class ERXKey<T> {
 	 * @author mschrag
 	 */
 	public static enum Type {
-		Attribute, ToOneRelationship, ToManyRelationship, Operator
+		Attribute, ToOneRelationship, ToManyRelationship, Operator, NonModelAttribute, NonModelToOneRelationshiop, NonModelToManyRelationship
 	}
 	
 	public interface ValueCoding {
-		public <T> T valueForKey(ERXKey<T> key);
+		public <T> T valueForERXKey(ERXKey<T> key);
 
-		public <T> void takeValueForKey(Object value, ERXKey<T> key);
+		public <T> void takeValueForERXKey(Object value, ERXKey<T> key);
 	}
 
 	private String _key;
