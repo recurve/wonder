@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
+import com.webobjects.eocontrol.EOKeyValueCoding;
+
 import er.extensions.eof.ERXKey;
+import er.extensions.foundation.ERXArrayUtilities;
 
 /**
  * <span class="en">
@@ -644,7 +647,7 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 
 	public String componentsJoinedByString(String separator) {
 		Object[] objects = objectsNoCopy();
-		StringBuffer buffer = new StringBuffer(objects.length * 32);
+		StringBuilder buffer = new StringBuilder(objects.length * 32);
 		for (int i = 0; i < objects.length; i++) {
 			if (i > 0 && separator != null) {
 				buffer.append(separator);
@@ -652,7 +655,7 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 			buffer.append(objects[i].toString());
 		}
 
-		return new String(buffer);
+		return buffer.toString();
 	}
 
 	public static NSArray<String> componentsSeparatedByString(String string, String separator) {
@@ -855,7 +858,7 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 		if(count() == 0) {
 			return "()";
 		}
-		StringBuffer buffer = new StringBuffer(128);
+		StringBuilder buffer = new StringBuilder(128);
 		buffer.append("(");
 		Object[] objects = objectsNoCopy();
 		for (int i = 0; i < objects.length; i++) {
@@ -877,7 +880,7 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 		}
 
 		buffer.append(")");
-		return new String(buffer);
+		return buffer.toString();
 	}
 
 	protected boolean _mustRecomputeHash() {
@@ -1082,7 +1085,7 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 	 * A type-safe wrapper for {@link #valueForKeyPath(String)} that simply
 	 * calls {@code valueForKeyPath(erxKey.key())} and attempts to cast the
 	 * result to {@code NSArray<T>}. If the value returned cannot be cast it
-	 * will throw a {@code ClassCastException}.
+	 * will throw a {@link ClassCastException}.
 	 * 
 	 * @param <T>
 	 *            the Type of elements in the returned {@code NSArray}
@@ -1090,15 +1093,13 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 	 * @return an {@code NSArray} of {@code T} objects.
 	 * @author David Avendasora
 	 */
-	public <T> NSArray<T> valueForKeyPath(ERXKey<T> erxKey) {
+	public <T> NSArray<T> valueForERXKeyPath(ERXKey<T> erxKey) {
 		return (NSArray<T>) valueForKeyPath(erxKey.key());
 	}
 
 	/**
-	 * A type-safe wrapper for {@link #valueForKey(String)} that simply calls
-	 * {@code valueForKey(erxKey.key())} and attempts to cast the result to
-	 * {@code NSArray<T>}. If the value returned cannot be cast it will throw a
-	 * {@code ClassCastException}.
+	 * A type-safe wrapper for {@link #valueForKeyPath(String)} that calls
+	 * {@code valueForKeyPath(erxKey, true, true, true)}
 	 * 
 	 * @param <T>
 	 *            the Type of elements in the returned {@code NSArray}
@@ -1106,7 +1107,50 @@ public class NSArray<E> implements Cloneable, Serializable, NSCoding, NSKeyValue
 	 * @return an {@code NSArray} of {@code T} objects.
 	 * @author David Avendasora
 	 */
-	public <T> NSArray<T> valueForKey(ERXKey<T> erxKey) {
-		return (NSArray<T>) valueForKey(erxKey.key());
+	public <T> NSArray<T> valueForERXKey(ERXKey<T> erxKey) {
+		return valueForERXKey(erxKey, true, true, true);
+	}
+
+	/**
+	 * <p>
+	 * A type-safe wrapper for {@link #valueForKeyPath(String)} that calls
+	 * {@code valueForKeyPath(erxKey.key())} and attempts to cast the result to
+	 * {@code NSArray<T>}.
+	 * </p>
+	 * <p>
+	 * Then, depending upon the parameters, removes
+	 * {@link NSKeyValueCoding.Null} elements, flattens any {@link NSArray}
+	 * elements and then filters out duplicate values.
+	 * </p>
+	 * <p>
+	 * <b>If the value cannot be cast it will throw a {@link ClassCastException}
+	 * .</b>
+	 * </p>
+	 * 
+	 * @param <T>
+	 *            the Type of elements in the returned {@code NSArray}
+	 * @param erxKey
+	 * @param removeNulls
+	 *            if {@code true} all {@link NSKeyValueCoding.Null} elements
+	 *            will be removed
+	 * @param distinct
+	 *            if {@code true} all duplicate elements will be removed
+	 * @param flatten
+	 *            if {@code true} all {@link NSArray} elements will be flattened
+	 * @return an {@code NSArray} of {@code T} objects.
+	 * @author David Avendasora
+	 */
+	public <T> NSArray<T> valueForERXKey(ERXKey<T> erxKey, boolean removeNulls, boolean distinct, boolean flatten) {
+		NSArray<T> values = (NSArray<T>) valueForKeyPath(erxKey.key());
+		if (removeNulls) {
+			values = ERXArrayUtilities.removeNullValues(values);
+		}
+		if (flatten && erxKey.isToManyRelationship()) {
+			values = ERXArrayUtilities.flatten(values);
+		}
+		if (distinct) {
+			values = ERXArrayUtilities.distinct(values);
+		}
+		return values;
 	}
 }

@@ -7,11 +7,13 @@ import com.webobjects.eocontrol.EOQualifier;
 import com.webobjects.eocontrol.EOSortOrdering;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSKeyValueCodingAdditions;
+import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSRange;
 import com.webobjects.foundation.NSSelector;
 import com.webobjects.foundation.NSTimestamp;
 
 import er.extensions.eof.ERXSortOrdering.ERXSortOrderings;
+import er.extensions.foundation.ERXArrayUtilities;
 import er.extensions.qualifiers.ERXAndQualifier;
 import er.extensions.qualifiers.ERXKeyComparisonQualifier;
 import er.extensions.qualifiers.ERXKeyValueQualifier;
@@ -71,6 +73,284 @@ public class ERXKey<T> {
 	private static final ERXKey<BigDecimal> STD_DEV = new ERXKey<BigDecimal>("@stdDev");
 	private static final ERXKey<?> SUBARRAY_WITH_RANGE = new ERXKey<Object>("@subarrayWithRange");
 	private static final ERXKey<?> UNIQUE = new ERXKey<Object>("@unique");
+
+	public static class ERXKeyPath<E extends ERXKey<?>> extends NSMutableArray<E> {
+
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Constructs an empty {@code ERXKeyPath}.
+		 * 
+		 * @author David Avendasora
+		 */
+		public ERXKeyPath() {
+			super();
+		}
+
+		/**
+		 * Constructs an {@code ERXKeyPath} with {@code erxKey}.
+		 * 
+		 * @param erxKey
+		 *            the key to add
+		 * @author David Avendasora
+		 */
+		public ERXKeyPath(E erxKey) {
+			super(erxKey);
+		}
+
+		/**
+		 * Constructs an {@code ERXKeyPath} with the list of {@code erxKeys}.
+		 * 
+		 * @param erxKeys
+		 *            the keys to add
+		 * @author David Avendasora
+		 */
+		public ERXKeyPath(E... erxKeys) {
+			super(erxKeys);
+		}
+
+		/**
+		 * Constructs an {@code ERXKeyPath} with the array {@code erxKeys}.
+		 * 
+		 * @param erxKeys
+		 *            the keys to add
+		 * @author David Avendasora
+		 */
+		public ERXKeyPath(NSArray<E> erxKeys) {
+			super(erxKeys);
+		}
+
+		/**
+		 * Adds the given key to the end of this list and returns "this" so it
+		 * can be chained again.
+		 * 
+		 * @param nextERXKey
+		 *            the key to add
+		 * @return this (with the key appended)
+		 * @author David Avendasora
+		 */
+		public ERXKeyPath<E> append(E nextERXKey) {
+			addObject(nextERXKey);
+			return this;
+		}
+
+		/**
+		 * Calls {@link #append(ERXKey)}
+		 * 
+		 * @param nextERXKey
+		 *            the key to append to this keypath
+		 * @return the new appended keyPath
+		 * @author David Avendasora
+		 * @see ERXKeyPath#dot(NSArray)
+		 */
+		public ERXKeyPath<E> dot(E nextERXKey) {
+			this.append(nextERXKey);
+			return this;
+		}
+
+		/**
+		 * Adds the given keys to the end of this list and returns "this" so it
+		 * can be chained again.
+		 * 
+		 * @param nextERXKeys
+		 *            the array of keys to add
+		 * @return this (with the keys appended)
+		 * @author David Avendasora
+		 * @see ERXKeyPath#append(ERXKey)
+		 */
+		public ERXKeyPath append(NSArray<E> nextERXKeys) {
+			addObjectsFromArray(nextERXKeys);
+			return this;
+		}
+
+		/**
+		 * Calls {@link #append(NSArray)}
+		 * 
+		 * @param nextERXKeys
+		 *            the array of keys to append to this keypath
+		 * @return the new appended keyPath
+		 * @author David Avendasora
+		 * @see ERXKeyPath#dot(ERXKey)
+		 */
+		public ERXKeyPath dot(NSArray<E> nextERXKeys) {
+			append(nextERXKeys);
+			return this;
+		}
+
+		/**
+		 * @return the {@code String} keypath that this {@code ERXKeyPath}
+		 *         represents.
+		 * 
+		 * @author davendasora
+		 * @since May 6, 2012
+		 */
+		public String key() {
+			String key = null;
+			ERXKey<?> erxKey = null;
+			for (ERXKey<?> keyPathElement : this.immutableClone()) {
+				if (erxKey == null) {
+					erxKey = keyPathElement;
+				}
+				else {
+					erxKey = erxKey.append(keyPathElement);
+				}
+				key = erxKey.key();
+			}
+			return key;
+		}
+
+		public boolean isToManyRelationship() {
+			boolean isToMany = false;
+			for (ERXKey<?> erxKey : this.immutableClone()) {
+				if (erxKey.isToManyRelationship()) {
+					isToMany = true;
+					break;
+				}
+			}
+			return isToMany;
+		}
+		
+		/**
+		 * Creates a simple {@code ERXKey} for the String returned by {@link #key()}
+		 * 
+		 * @param <U>
+		 * @return a simple ERXKey for {@link #key()}
+		 * 
+		 * @author David Avendasora
+		 * @since May 7, 2012
+		 */
+		public <U> ERXKey<U> erxKey() {
+			ERXKey<U> erxKey = new ERXKey<U>(this.key());
+			if (this.isToManyRelationship()) {
+				erxKey.setType(ERXKey.Type.ToManyRelationship);
+			}
+			return erxKey;
+		}
+
+		/**
+		 * <p>
+		 * Creates a new ERXKeyPath that prepends ERXArrayUtilities'
+		 * {@code @flatten} operator to any of the component keys that are the
+		 * target of a {@link ERXKey.Type.ToManyRelationship to-many
+		 * relationship}
+		 * </p>
+		 * 
+		 * @return an {@code ERXKeyPath} with any needed
+		 *         {@link ERXKey#flatten()} inserted in the correct position in
+		 *         the keyPath.
+		 * 
+		 * @see ERXArrayUtilities#removeNullValues(NSArray)
+		 * 
+		 * @author David Avendasora
+		 * @since May 7, 2012
+		 */
+		public ERXKeyPath atRemoveNullValues() {
+			ERXKeyPath fullKeyPath = new ERXKeyPath();
+			NSArray<E> clonedKeyPath = this.immutableClone();
+			int thisKeyIndex = 0;
+			for (ERXKey<?> thisKey : clonedKeyPath) {
+				ERXKeyPath keyPath = new ERXKeyPath();
+				boolean thisKeyIsLast = thisKeyIndex+1 == clonedKeyPath.count();
+
+				keyPath.append(thisKey);
+				if (thisKey != ERXKey.unique() && (thisKey.isToManyRelationship() || (fullKeyPath.isToManyRelationship() && !thisKeyIsLast))) {
+					keyPath.append(ERXKey.removeNullValues());
+				}
+
+				fullKeyPath.append(keyPath);
+				thisKeyIndex++;
+			}
+			return fullKeyPath;
+		}
+		
+		/**
+		 * <p>
+		 * Creates a new ERXKeyPath that appends ERXArrayUtilities'
+		 * {@code @flatten} operator to any of the component keys that are the
+		 * target of a {@link ERXKey.Type.ToManyRelationship to-many
+		 * relationship}
+		 * </p>
+		 * <p>
+		 * <b>NOTE:</b> if any of the relationships represented by the
+		 * {@link #key()} are optional it is strongly recommended that you call
+		 * {@link #atRemoveNullValues()} before calling this method.
+		 * </p>
+		 * 
+		 * @return an {@code ERXKeyPath} with any needed
+		 *         {@link ERXKey#flatten()} inserted in the correct position in
+		 *         the keyPath.
+		 * 
+		 * @see ERXKey#flatten()
+		 * 
+		 * @author davendasora
+		 * @since May 6, 2012
+		 */
+		public ERXKeyPath atFlatten() {
+			ERXKeyPath fullKeyPath = new ERXKeyPath();
+			for (ERXKey<?> thisKey : this.immutableClone()) {
+				ERXKeyPath keyPath = new ERXKeyPath();
+
+				keyPath.append(thisKey);
+				if (thisKey.isToManyRelationship()) {
+					keyPath.append(ERXKey.flatten());
+				}
+
+				fullKeyPath.append(keyPath);
+			}
+			return fullKeyPath;
+		}
+
+		/**
+		 * <p>
+		 * Creates a new ERXKeyPath that appends ERXArrayUtilities'
+		 * {@code unique} operator to any of the component keys that are the
+		 * target of an {@link ERXKey.Type.ToManyRelationship} ERXKey
+		 * </p>
+		 * <p>
+		 * <b>NOTE:</b> if any of the relationships represented by the
+		 * {@link #key()} are optional it is strongly recommended that you call
+		 * {@link #atRemoveNullValues()} before calling this method.
+		 * </p>
+		 * 
+		 * @return an {@code ERXKeyPath} with any needed
+		 *         {@link ERXKey#unique()} inserted in the correct position in
+		 *         the keyPath.
+		 * 
+		 * @see ERXKey#unique()
+		 * 
+		 * @author davendasora
+		 * @since May 7, 2012
+		 */
+		public ERXKeyPath atUnique() {
+			ERXKeyPath fullKeyPath = new ERXKeyPath();
+			NSArray<E> clonedKeyPath = this.immutableClone();
+			for (ERXKey<?> thisKey : clonedKeyPath) {
+				ERXKeyPath keyPath = new ERXKeyPath();
+				
+				keyPath.append(thisKey);
+				/*
+				 * No need to add @unique if all this key does is remove nulls.
+				 * The key that @removeNullValues is appending should have
+				 * already been appended by @unique.
+				 */
+				if (thisKey != ERXKey.removeNullValues()
+						&& (thisKey.isToManyRelationship() || fullKeyPath.isToManyRelationship())) {
+					keyPath.append(ERXKey.unique());
+				}
+				
+				fullKeyPath.append(keyPath);
+			}
+			return fullKeyPath;
+		}
+		
+		public ERXKeyValueQualifier thatContainsObject(Object value) {
+			ERXKeyPath keyPath = this;
+			keyPath = keyPath.atRemoveNullValues();
+			keyPath = keyPath.atFlatten();
+			keyPath = keyPath.atUnique();
+			return keyPath.erxKey().containsObject(value);
+		}		
+	}
 
 	/**
 	 * <p>
@@ -1502,16 +1782,17 @@ public class ERXKey<T> {
 	 * @author mschrag
 	 */
 	public static enum Type {
-		Attribute, ToOneRelationship, ToManyRelationship
+		Attribute, ToOneRelationship, ToManyRelationship, Operator, NonModelAttribute, NonModelToOneRelationshiop, NonModelToManyRelationship
 	}
 	
 	public interface ValueCoding {
-		public <T> T valueForKey(ERXKey<T> key);
+		public <T> T valueForERXKey(ERXKey<T> key);
 
-		public <T> void takeValueForKey(Object value, ERXKey<T> key);
+		public <T> void takeValueForERXKey(Object value, ERXKey<T> key);
 	}
 
 	private String _key;
+	private Type _type;
 
 	/**
 	 * Constructs an ERXKey.
@@ -1521,6 +1802,18 @@ public class ERXKey<T> {
 	 */
 	public ERXKey(String key) {
 		_key = key;
+	}
+
+	/**
+	 * Constructs an ERXKey.
+	 * 
+	 * @param key
+	 *            the underlying keypath
+	 * @param type
+	 */
+	public ERXKey(String key, Type type) {
+		_key = key;
+		setType(type);
 	}
 
 	/**
@@ -2554,5 +2847,25 @@ public class ERXKey<T> {
 	 */
 	public ERXSortOrderings dot(NSArray<EOSortOrdering> sortOrderings) {
 		return prefix(sortOrderings);
+	}
+
+	public Type type() {
+		return _type;
+	}
+
+	public void setType(Type type) {
+		_type = type;
+	}
+	
+	public boolean isAttribute() {
+		return type() == ERXKey.Type.Attribute;
+	}
+	
+	public boolean isToOneRelationship() {
+		return type() == ERXKey.Type.ToOneRelationship;
+	}
+	
+	public boolean isToManyRelationship() {
+		return type() == ERXKey.Type.ToManyRelationship;
 	}
 }
