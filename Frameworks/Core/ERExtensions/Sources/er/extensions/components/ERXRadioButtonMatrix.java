@@ -111,10 +111,6 @@ public class ERXRadioButtonMatrix extends ERXStatelessComponent {
         	return (isDisabled ? "disabled" : "") + (isDisabled && isChecked? " " : "") + (isChecked ? "checked" : "");
 	}
 
-    public boolean disabled() {
-    	return booleanValueForBinding("disabled", false);
-    }
-
     @Override
     public void awake() {
         super.awake();
