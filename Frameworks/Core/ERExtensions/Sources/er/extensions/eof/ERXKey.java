@@ -2858,14 +2858,14 @@ public class ERXKey<T> {
 	}
 	
 	public boolean isAttribute() {
-		return type() == ERXKey.Type.Attribute;
+		return type() == ERXKey.Type.Attribute || type() == ERXKey.Type.NonModelAttribute;
 	}
 	
 	public boolean isToOneRelationship() {
-		return type() == ERXKey.Type.ToOneRelationship;
+		return type() == ERXKey.Type.ToOneRelationship || type() == ERXKey.Type.NonModelToOneRelationshiop;
 	}
 	
 	public boolean isToManyRelationship() {
-		return type() == ERXKey.Type.ToManyRelationship;
+		return type() == ERXKey.Type.ToManyRelationship || type() == ERXKey.Type.NonModelToManyRelationship;
 	}
 }
