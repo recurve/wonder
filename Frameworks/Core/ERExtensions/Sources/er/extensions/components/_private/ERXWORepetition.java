@@ -117,8 +117,8 @@ public class ERXWORepetition extends WODynamicGroup {
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public UnmatchedObjectException() {
-
+		public UnmatchedObjectException(String message) {
+			super(message);
 		}
 	}
 
@@ -511,7 +511,8 @@ public class ERXWORepetition extends WODynamicGroup {
 
 					if (!found) {
 						if (raiseOnUnmatchedObject(wocomponent)) {
-							throw new UnmatchedObjectException();
+							throw new UnmatchedObjectException(
+									unmatchedObjectExceptionMessage(index, repetitionContext.nsarray, wocomponent));
 						}
 						if (_notFoundMarker == null) {
 							return wocontext.page();
@@ -522,7 +523,8 @@ public class ERXWORepetition extends WODynamicGroup {
 				else {
 					if (index >= repetitionContext.count()) {
 						if (raiseOnUnmatchedObject(wocomponent)) {
-							throw new UnmatchedObjectException();
+							throw new UnmatchedObjectException(
+									unmatchedObjectExceptionMessage(index, repetitionContext.nsarray, wocomponent));
 						}
 						return wocontext.page();
 					}
@@ -551,6 +553,46 @@ public class ERXWORepetition extends WODynamicGroup {
 			}
 		}
 		return woactionresults;
+	}
+	
+	protected void appendParentComponentTree(StringBuilder buffer, WOComponent parentComponent) {
+		if (parentComponent != null) {
+			while (parentComponent.parent() != null) {
+				buffer.append(parentComponent.getClass().getName() + "->");
+				parentComponent = parentComponent.parent();
+			}
+
+			buffer.append(parentComponent.getClass().getName());
+		} else {
+			buffer.append("No parent component. ");
+		}
+	}
+	
+	protected void unmatchedObjectDetails(StringBuilder buffer, Object unmatchedObject) {
+		if (unmatchedObject == null) {
+			buffer.append("unmatchedObject is null. ");
+		} else {
+			buffer.append("unmatchedObject is " + unmatchedObject.getClass().getName() + ". ");
+		}
+	}
+	
+	protected String unmatchedObjectExceptionMessage(int notFoundIndex, NSArray<Object> repetitionList, WOComponent parentComponent) {
+		StringBuilder message = new StringBuilder();
+		message.append("notFoundIndex = " + notFoundIndex + ". ");
+		if (repetitionList != null) {
+			message.append("repetitionList length = " + repetitionList.count() + ". ");
+			if (repetitionList.count() > 0) {
+				message.append("Analyzing last element of repetitionList: ");
+				unmatchedObjectDetails(message, repetitionList.lastObject());
+				message.append("Entire repetitionList: " + repetitionList + ". ");
+			}
+		} else {
+			message.append("repetitionList length is null. ");
+		}
+		
+		appendParentComponentTree(message, parentComponent);
+		
+		return message.toString();
 	}
 
 	private boolean checkHashCodes(WOComponent wocomponent) {
