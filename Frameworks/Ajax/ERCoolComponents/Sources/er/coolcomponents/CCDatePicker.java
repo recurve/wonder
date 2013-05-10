@@ -151,11 +151,11 @@ public class CCDatePicker extends ERXStatelessComponent {
 		result = StringUtils.replace(result, "%y", "-y");
 		result = StringUtils.replace(result, "%Y", "-Y");
 		result = StringUtils.replace(result, "%w", "-w");
+		
 		result = StringUtils.replace(result, " ", "-sp");
 		result = StringUtils.replace(result, ".", "-dt");
 		result = StringUtils.replace(result, "/", "-sl");
 		result = StringUtils.replace(result, ",", "-cc");
-
 		
 		if (result.indexOf("-") == 0) {
 			// strip off leading "-"
