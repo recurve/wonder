@@ -175,7 +175,8 @@ public class ERXSequence {
 		}
 
 		protected long createRow(Connection con, long increment) throws SQLException {
-			String incrementString = EOSQLExpression.sqlStringForNumber(Long.valueOf(increment));
+			Long startingValue = _lastValue + increment; // the initial value is stored in "_lastValue" when the sequence is created
+			String incrementString = EOSQLExpression.sqlStringForNumber(Long.valueOf(startingValue));
 			String tableList = ERX_SEQUENCE_TABLE;
 			String columnList = NAME_COLUMN_NAME + "," + VALUE_COLUMN_NAME;
 			String valueList = "'" + name() + "'," + incrementString;
