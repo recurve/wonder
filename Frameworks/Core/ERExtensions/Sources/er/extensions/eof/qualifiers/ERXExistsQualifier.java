@@ -349,7 +349,7 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
                 String destEntityPrimaryKey = expression.sqlStringForAttribute(destPK);
                 int indexOfFirstPeriod = destEntityPrimaryKey.indexOf(".");
                 destEntityPrimaryKey = destEntityPrimaryKey.substring(indexOfFirstPeriod);
-                subExprStr = StringUtils.replace(
+                subExprStr = StringUtils.replaceOnce(
                 		subExprStr,
                 		"SELECT " + EXISTS_ALIAS + "0" + destEntityPrimaryKey + " FROM", 
                 		"SELECT " + EXISTS_ALIAS + "0" + destEntityForeignKey + " FROM");
@@ -370,7 +370,7 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
             	
                 sb.append(EXISTS_ALIAS + "0" + destEntityForeignKey);
                 sb.append(" = ");
-                sb.append(StringUtils.replace(srcEntityForeignKey, "t0.", sourceTableAlias + "."));
+                sb.append(StringUtils.replaceOnce(srcEntityForeignKey, "t0.", sourceTableAlias + "."));
             }
             sb.append(" ) ");
             return sb.toString();
