@@ -13,6 +13,7 @@ import com.webobjects.foundation.NSSelector;
 import com.webobjects.foundation.NSTimestamp;
 
 import er.extensions.eof.ERXSortOrdering.ERXSortOrderings;
+import er.extensions.eof.qualifiers.ERXExistsQualifier;
 import er.extensions.foundation.ERXArrayUtilities;
 import er.extensions.qualifiers.ERXAndQualifier;
 import er.extensions.qualifiers.ERXKeyComparisonQualifier;
@@ -2562,6 +2563,32 @@ public class ERXKey<T> {
 	 */
 	public ERXKeyValueQualifier containsObject(Object obj) {
 		return ERXQ.containsObject(_key, obj);
+	}
+		
+	/**
+	 * Return a qualifier that evaluates to true when the given key contains at
+	 * least one object matching the qualifier
+	 * 
+	 * Equivalent to <code>new ERXExistsQualifier(qualifier, key)</code>.
+	 * 
+	 * @param qualifier
+	 * @return an ERXExistsQualifier
+	 */
+	public ERXExistsQualifier atLeastOneSatisfies(EOQualifier qualifier) {
+		return new ERXExistsQualifier(qualifier, _key);
+	}
+
+	/**
+	 * Return a qualifier that evaluates to true when the given key contains at
+	 * least one object matching the qualifier
+	 * 
+	 * Equivalent to <code>new ERXExistsQualifier(qualifier, key)</code>.
+	 * 
+	 * @param qualifier
+	 * @return an ERXExistsQualifier
+	 */
+	public ERXExistsQualifier anySatisfy(EOQualifier qualifier) {
+		return atLeastOneSatisfies(qualifier);
 	}
 	
 	/**
