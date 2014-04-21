@@ -355,7 +355,7 @@ public class ERXKey<T> {
 
 	/**
 	 * <p>
-	 * Creates a new ERXKey that appends the given {@code key} to
+	 * Creates a new ERXKey that prepends the given {@code key} with
 	 * ERXArrayUtilities' {@code @avgNonNull} aggregate operator.
 	 * </p>
 	 * 
@@ -387,8 +387,8 @@ public class ERXKey<T> {
 	}
 	
 	/**
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @avgNonNull} aggregate operator and then appends the given
+	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @avgNonNull}
+	 * aggregate operator and the given {@code key} to this key.
 	 * {@code key}.
 	 * 
 	 * @param key
@@ -405,8 +405,8 @@ public class ERXKey<T> {
 	}
 
 	/**
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @avgNonNull} aggregate operator
+	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @avgNonNull}
+	 * aggregate operator to this key
 	 * 
 	 * @return an {@code ERXKey<BigDecimal>} wrapping the
 	 *         {@code thisKey.@avgNonNull} keypath
@@ -420,8 +420,9 @@ public class ERXKey<T> {
 	
 	/**
 	 * <p>
-	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @fetchSpec}
-	 * operator with the {@code fetchSpecName} and the {@code key}.
+	 * Creates a new ERXKey that prepends the {@code key} with
+	 * ERXArrayUtilities' {@code @fetchSpec} operator and the
+	 * {@code fetchSpecName}.
 	 * </p>
 	 * <p>
 	 * This ERXKey does not perform a fetch itself. It simply makes use of an
@@ -453,9 +454,9 @@ public class ERXKey<T> {
 	
 	/**
 	 * <p>
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @fetchSpec} operator and then with the {@code fetchSpecName} and
-	 * the {@code key}, which should resolve to an NSArray<U> when used.
+	 * Creates a new ERXKey that appends ERXArrayUtilities'
+	 * {@code @fetchSpec} operator, the {@code fetchSpecName} and
+	 * the {@code key} to this key.
 	 * </p>
 	 * <p>
 	 * This ERXKey does not perform a fetch itself. It simply makes use of an
@@ -488,8 +489,8 @@ public class ERXKey<T> {
 	
 	/**
 	 * <p>
-	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @fetchSpec}
-	 * operator with the {@code fetchSpecName}
+	 * Creates a new ERXKey that appends the {@code fetchSpecName} to
+	 * ERXArrayUtilities' {@code @fetchSpec} operator.
 	 * </p>
 	 * <p>
 	 * This ERXKey does not perform a fetch itself. It simply makes use of an
@@ -519,8 +520,8 @@ public class ERXKey<T> {
 	
 	/**
 	 * <p>
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @fetchSpec} operator and then with the {@code fetchSpecName}
+	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @fetchSpec}
+	 * operator and the {@code fetchSpecName} to this key.
 	 * </p>
 	 * <p>
 	 * This ERXKey does not perform a fetch itself. It simply makes use of an
@@ -551,9 +552,9 @@ public class ERXKey<T> {
 	/**
 	 * <b>Will flatten an array of arrays or a key it is appended to</b>
 	 * <p>
-	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @flatten}
-	 * operator with the {@code key}, which should resolve to an NSArray<U> when
-	 * used.
+	 * Creates a new ERXKey that prepends the {@code key} with
+	 * ERXArrayUtilities' {@code @flatten} operator. The {@code key} should
+	 * resolve to an {@code NSArray<U>} when used.
 	 * </p>
 	 * <p>
 	 * <b>Note:</b> the {@code @flatten} operator is applied to the array it is
@@ -562,8 +563,12 @@ public class ERXKey<T> {
 	 * key that is already included in a keypath.
 	 * </p>
 	 * <p>
-	 * For example, if the {@code key} is "price" this will return a new ERXKey
-	 * wrapping the {@code @flatten.price} keypath.
+	 * For example, if you are chaining ERXKeys such as
+	 * {@code Customer.ORDERS.dot(Order.ORDER_LINES)} which if called on a
+	 * Customer would return an {@code NSArray<NSArray<OrderLine>>}, you can add
+	 * dot(ERXKey.flatten(OrderLine.PRICE) to get a new ERXKey wrapping the
+	 * {@code orders.orderlines.@flatten.price}, which will return an array of
+	 * prices when called on any Customer object.
 	 * </p>
 	 * 
 	 * @param <U>
@@ -583,9 +588,9 @@ public class ERXKey<T> {
 	/**
 	 * <b>Flattens this key</b>
 	 * <p>
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @flatten} operator and then with the {@code key}, which should
-	 * resolve to an {@code NSArray<U>} when used.
+	 * Creates a new ERXKey that appends ERXArrayUtilities' {@code @flatten}
+	 * operator and the {@code key} to this key. The {@code key} should resolve
+	 * to an {@code NSArray<U>} when used.
 	 * </p>
 	 * <p>
 	 * <b>Note:</b> the {@code @flatten} operator will be applied to this key,
@@ -599,7 +604,7 @@ public class ERXKey<T> {
 	 * @param <U>
 	 *            the type of the next key
 	 * @param key
-	 *            the key following the key to be flattened
+	 *            the following key
 	 * 
 	 * @return an {@code ERXKey<U>} wrapping the {@code thisKey.@flatten.key}
 	 *         keypath
@@ -633,8 +638,8 @@ public class ERXKey<T> {
 	/**
 	 * <b>Flattens this key</b>
 	 * <p>
-	 * Creates a new ERXKey that appends this key with ERXArrayUtilities'
-	 * {@code @flatten} operator.
+	 * Creates a new ERXKey that appends ERXArrayUtilities'
+	 * {@code @flatten} operator to this key.
 	 * </p>
 	 * 
 	 * @param <U>
@@ -2753,7 +2758,6 @@ public class ERXKey<T> {
 	 * will return a new ERXKey "person.firstName".
 	 * 
 	 * <pre>
-	 * &lt;code&gt;
 	 * 		ERXKey&lt;String&gt; k = new ERXKey&lt;String&gt;(&quot;foo&quot;);
 	 * 		ERXKey&lt;NSArray&lt;String&gt;&gt; a = new ERXKey&lt;NSArray&lt;String&gt;&gt;(&quot;foos&quot;);
 	 * 		k = k.append(k);
@@ -2763,7 +2767,6 @@ public class ERXKey<T> {
 	 * 		a = k.appendAsArray(a);
 	 * 		a = a.appendAsArray(k);
 	 * 		a = a.appendAsArray(a);
-	 * &lt;/code&gt;
 	 * </pre>
 	 * 
 	 * @param <U> the type of the next key in the array 

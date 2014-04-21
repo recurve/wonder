@@ -244,7 +244,7 @@ public class ERXToManyQualifier extends ERXKeyValueQualifier implements Cloneabl
                         }
                         result.append(keyString);
                         if(i < pKeys.count()-1) {
-                            result.append(",");
+                            result.append(',');
                         }
                     }
                     result.append(") ");
