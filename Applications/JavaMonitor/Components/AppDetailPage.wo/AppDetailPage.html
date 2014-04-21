@@ -34,7 +34,7 @@
 <table>
   <tr>
     <th>Select</th>
-    <th>Name</th>
+    <th class="instanceName">Name</th>
     <th>Host: Port</th>
     <th>Status</th>
     <th>Start - Stop</th>
@@ -44,10 +44,10 @@
     <th>Next shutdown</th>
 	<th>Deaths</th>
     <webobject name = "ShowStatistics">
-	    <th>Transactions</th>
+	    <th>Transactions<div class="subhead">(since launch)</div></th>
 	    <th>Active Sessions</th>
-	    <th>Average Transactions</th>
-	    <th>Average Idle Period</th>
+	    <th>Average Transaction Time<div class="units">(in seconds)</div></th>
+	    <th>Average Idle Period<div class="units">(in seconds)</div></th>
    </webobject><webobject name = "ShowWOStats">
  		<th>WOStats</th>
 	</webobject>
@@ -62,7 +62,7 @@
 	<td class="InstanceSelect"><webobject name = "SelectOneForm"><webobject name = "Observer"><webobject name = "IsSelected"/></webobject></webobject></td>
 
 <!--       Instance Number       -->
-      <td>
+      <td class="instanceName">
         <webobject name = "InstanceRunningConditional">
           <webobject name = "InstAdaptorLink">
             <webobject name = "InstIndex"></webobject>
@@ -146,8 +146,8 @@
       <td class="ActiveSessionCount">
         <webobject name = "InstActiveSessions"></webobject>
       </td>
-      <td class="AverageTransactionsCount">
-        <webobject name = "InstAverageTransaction"></webobject>
+      <td class="AverageTransactionTime">
+        <webobject name = "InstAverageTransactionTime"></webobject>
       </td>
       <td class="AverageIdlePeriod">
         <webobject name = "InstAverageIdle"></webobject>
@@ -233,8 +233,8 @@
       <td class="TotalActiveSessions">
         <webobject name = "TotalActiveSessions"></webobject>
       </td>
-      <td class="TotalAverageTransaction">
-        <webobject name = "TotalAverageTransaction"></webobject>
+      <td class="TotalAverageTransactionTime">
+        <webobject name = "TotalAverageTransactionTime"></webobject>
       </td>
       <td class="TotalAverageIdleTime">
         <webobject name = "TotalAverageIdleTime"></webobject>
@@ -253,11 +253,11 @@
     
     <wo:if condition="$showDetailStatistics">
     <tr class="TotalsForRunningInstances">
-    	<td colspan="10" class="label">Running Sessions</td>
+    	<td colspan="10" class="label">Running Instances</td>
     	<td class="TotalTransactionCount"><webobject name = "TotalTransactionsForActiveInstances"></webobject></td>
       	<td class="TotalActiveSessions"><webobject name = "ActiveSessionsForActiveInstances"></webobject></td>
-      	<td class="TotalAverageTransaction"></td>
-      	<td class="TotalAverageIdleTime"></td>
+      	<td class="TotalAverageTransactionTime"><webobject name = "TotalAverageTransactionTimeForActiveInstances"></webobject></td>
+      	<td class="TotalAverageIdleTime"><webobject name = "TotalAverageIdleTimeForActiveInstances"></webobject></td>
       	
   		<td colspan="2"></td>
     </tr>

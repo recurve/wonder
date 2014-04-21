@@ -706,9 +706,26 @@ public class AppDetailPage extends MonitorComponent {
     	return StatsUtilities.totalActiveSessionsForActiveInstancesOfApplication(myApplication());
     }
  
+
+    /**
+     * @return the time that transactions take to process, averaged across all running instances of {@link #myApplication()}.
+     */
+    public Float averageTransactionTimeForActiveInstances(){
+    	return StatsUtilities.averageTransactionTimeOfActiveInstances(myApplication());
+    }
     
-    public Float totalAverageTransaction() {
-        return StatsUtilities.totalAverageTransactionForApplication(myApplication());
+    
+    /**
+     * @return the idle time of each running instance, averaged across all running instances of {@link #myApplication()}.
+     */
+    public Float averageIdleTimeForActiveInstances(){
+    	return StatsUtilities.averageIdleTimeOfActiveInstances(myApplication());
+    }
+    
+    
+    
+    public Float totalAverageTransactionTime() {
+        return StatsUtilities.totalAverageTransactionTimeForApplication(myApplication());
     }
 
     public Float totalAverageIdleTime() {

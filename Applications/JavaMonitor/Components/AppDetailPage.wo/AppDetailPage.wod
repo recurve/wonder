@@ -77,7 +77,7 @@ InstAverageIdle: WOString {
 	value = currentInstance.averageIdlePeriod;
 }
 
-InstAverageTransaction: WOString {
+InstAverageTransactionTime: WOString {
 	value = currentInstance.avgTransactionTime;
 }
 
@@ -272,9 +272,9 @@ TotalAverageIdleTime: WOString {
 	value = totalAverageIdleTime;
 }
 
-TotalAverageTransaction: WOString {
+TotalAverageTransactionTime: WOString {
 	numberformat = "0.000";
-	value = totalAverageTransaction;
+	value = totalAverageTransactionTime;
 }
 
 TotalTransactions: WOString {
@@ -292,7 +292,15 @@ ActiveSessionsForActiveInstances: WOString {
 	numberformat = "#,##0";	
 }
 
+TotalAverageTransactionTimeForActiveInstances: WOString {
+	value = averageTransactionTimeForActiveInstances;
+	numberformat = "0.000";
+}
 
+TotalAverageIdleTimeForActiveInstances: WOString {
+	value = averageIdleTimeForActiveInstances;
+	numberformat = "0.000";
+}
 
 
 // Start of Add Instance Stuff
