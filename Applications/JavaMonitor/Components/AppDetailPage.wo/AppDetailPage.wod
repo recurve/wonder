@@ -138,7 +138,7 @@ InstStatusImage: WOImage {
 }
 
 InstTransactions: WOString {
-	value = currentInstance.transactions;
+	value = currentInstance.transactionsValue;
 	numberformat = "#,##0";
 }
 

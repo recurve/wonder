@@ -852,9 +852,9 @@ public class AppDetailPage extends MonitorComponent {
 		}    	
     	return time;
     }
+ 
 
-    
-	/**
+    /**
 	 * Cover method to return a Integer to allow AppDetailPage.wod to decide how
 	 * to display, possibly using a formatter which is the appropriate place
 	 * following MVC principles. (Modifying
