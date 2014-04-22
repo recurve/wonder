@@ -831,5 +831,75 @@ public class AppDetailPage extends MonitorComponent {
     	}
     	return columnSpan;
     }
+    
+    
+	/**
+	 * Cover method to return a Float to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return average transaction time of the current instance
+	 */
+    public Float currentInstanceAverageTransactionTime(){
+    	Float time = null;
+		if (currentInstance() != null){
+        	String averageTransactionTimeString = currentInstance().avgTransactionTime();
+        	if (! "-".equals(averageTransactionTimeString)){
+        		time = Float.valueOf(averageTransactionTimeString);    			
+        	}
+		}    	
+    	return time;
+    }
 
+    
+	/**
+	 * Cover method to return a Integer to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return number of active sessions of the current instance
+	 */
+    public Integer currentInstanceActiveSessions(){
+    	Integer numberOfActiveSessions = null;
+		if (currentInstance() != null){
+        	String activeSessionString = currentInstance().activeSessions();
+        	if (! "-".equals(activeSessionString)){
+        		numberOfActiveSessions = Integer.valueOf(activeSessionString);    			
+        	}
+		}    	
+    	return numberOfActiveSessions;
+    }
+    
+
+    /**
+	 * Cover method to return a Integer to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return number of active sessions of the current instance
+	 */
+    public Float currentInstanceAverageIdlePeriod(){
+    	Float time = null;
+		if (currentInstance() != null){
+        	String idlePeriodString = currentInstance().averageIdlePeriod();
+        	if (! "-".equals(idlePeriodString)){
+        		time = Float.valueOf(idlePeriodString);    			
+        	}
+		}    	
+    	return time;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 }
