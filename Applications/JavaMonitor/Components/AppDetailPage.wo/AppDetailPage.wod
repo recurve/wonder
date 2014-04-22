@@ -70,18 +70,21 @@ IFSchedulingIsOn: WOConditional {
 }
 
 InstActiveSessions: WOString {
-	value = currentInstance.activeSessions;
+	value = currentInstance.statistics.activeSessions;
 	numberformat = "#,##0";
+	valueWhenEmpty = "-";
 }
 
 InstAverageIdle: WOString {
-	value = currentInstance.averageIdlePeriod;
+	value = currentInstance.statistics.averageIdlePeriod;
 	numberformat = "0.000";
+	valueWhenEmpty = "-";
 }
 
 InstAverageTransactionTime: WOString {
-	value = currentInstance.avgTransactionTime;
+	value = currentInstance.statistics.avgTransactionTime;
 	numberformat = "0.000";
+	valueWhenEmpty = "-";
 }
 
 InstConfigureLink: WOHyperlink {
