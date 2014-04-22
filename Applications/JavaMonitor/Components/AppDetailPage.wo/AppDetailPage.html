@@ -128,8 +128,14 @@
       </td>
 <!--       Next Scheduled Shutdown       -->
       <td class="NextShutDown">
-        <webobject name = "NextShutdown"></webobject>
+      	<webobject name = "IfNextShutDownIsEnabled">
+      		<webobject name = "NextShutdown"></webobject>
+      	</webobject>
+      	<webobject name = "IfNextShutDownIsNotEnabled">
+      		<div class="NoNextScheduledShutDown">N/A</div>
+      	</webobject>
       </td>
+      
       <td class="DeathCount">
         <webobject name = "ShouldDisplayDeathDetailLink">
           <span class="Deaths"><webobject name = "InstDeathCount"></webobject></span>
@@ -253,7 +259,7 @@
     
     <wo:if condition="$showDetailStatistics">
     <tr class="TotalsForRunningInstances">
-    	<td colspan="10" class="label">Running Instances</td>
+    	<webobject name = "TableDataForTotals">Running Instances</webobject>
     	<td class="TotalTransactionCount"><webobject name = "TotalTransactionsForActiveInstances"></webobject></td>
       	<td class="TotalActiveSessions"><webobject name = "ActiveSessionsForActiveInstances"></webobject></td>
       	<td class="TotalAverageTransactionTime"><webobject name = "TotalAverageTransactionTimeForActiveInstances"></webobject></td>

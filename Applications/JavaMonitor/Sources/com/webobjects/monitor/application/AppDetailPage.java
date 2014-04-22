@@ -816,5 +816,20 @@ public class AppDetailPage extends MonitorComponent {
         NSArray selected = (context.page() instanceof AppDetailPage ? ((AppDetailPage) context.page()).selectedInstances() : null);
         return create(context, currentApplication, selected);
     }
+    
+    
+    /**
+     * @return the number of columns that should be spanned for the totals row, 
+     * dependent on whether statistics are being shown or not
+     */
+    public String columnSpanForTotals(){
+    	String columnSpan = "";
+    	if (showDetailStatistics){
+    		columnSpan = "10";
+    	}else{
+    		columnSpan = "8";
+    	}
+    	return columnSpan;
+    }
 
 }

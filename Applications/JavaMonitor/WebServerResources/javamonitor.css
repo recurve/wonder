@@ -439,7 +439,10 @@ div.ApplicationDetailsBox table tr td.instanceName
 	white-space: nowrap;
 }
 
-
+div.NoNextScheduledShutDown
+{
+	text-align: center;
+}
 
 
 
