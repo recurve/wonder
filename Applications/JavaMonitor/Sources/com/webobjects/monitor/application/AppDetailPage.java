@@ -706,9 +706,26 @@ public class AppDetailPage extends MonitorComponent {
     	return StatsUtilities.totalActiveSessionsForActiveInstancesOfApplication(myApplication());
     }
  
+
+    /**
+     * @return the time that transactions take to process, averaged across all running instances of {@link #myApplication()}.
+     */
+    public Float averageTransactionTimeForActiveInstances(){
+    	return StatsUtilities.averageTransactionTimeOfActiveInstances(myApplication());
+    }
     
-    public Float totalAverageTransaction() {
-        return StatsUtilities.totalAverageTransactionForApplication(myApplication());
+    
+    /**
+     * @return the idle time of each running instance, averaged across all running instances of {@link #myApplication()}.
+     */
+    public Float averageIdleTimeForActiveInstances(){
+    	return StatsUtilities.averageIdleTimeOfActiveInstances(myApplication());
+    }
+    
+    
+    
+    public Float totalAverageTransactionTime() {
+        return StatsUtilities.totalAverageTransactionTimeForApplication(myApplication());
     }
 
     public Float totalAverageIdleTime() {
@@ -799,5 +816,90 @@ public class AppDetailPage extends MonitorComponent {
         NSArray selected = (context.page() instanceof AppDetailPage ? ((AppDetailPage) context.page()).selectedInstances() : null);
         return create(context, currentApplication, selected);
     }
+    
+    
+    /**
+     * @return the number of columns that should be spanned for the totals row, 
+     * dependent on whether statistics are being shown or not
+     */
+    public String columnSpanForTotals(){
+    	String columnSpan = "";
+    	if (showDetailStatistics){
+    		columnSpan = "10";
+    	}else{
+    		columnSpan = "8";
+    	}
+    	return columnSpan;
+    }
+    
+    
+	/**
+	 * Cover method to return a Float to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return average transaction time of the current instance
+	 */
+    public Float currentInstanceAverageTransactionTime(){
+    	Float time = null;
+		if (currentInstance() != null){
+        	String averageTransactionTimeString = currentInstance().avgTransactionTime();
+        	if (! "-".equals(averageTransactionTimeString)){
+        		time = Float.valueOf(averageTransactionTimeString);    			
+        	}
+		}    	
+    	return time;
+    }
+ 
 
+    /**
+	 * Cover method to return a Integer to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return number of active sessions of the current instance
+	 */
+    public Integer currentInstanceActiveSessions(){
+    	Integer numberOfActiveSessions = null;
+		if (currentInstance() != null){
+        	String activeSessionString = currentInstance().activeSessions();
+        	if (! "-".equals(activeSessionString)){
+        		numberOfActiveSessions = Integer.valueOf(activeSessionString);    			
+        	}
+		}    	
+    	return numberOfActiveSessions;
+    }
+    
+
+    /**
+	 * Cover method to return a Integer to allow AppDetailPage.wod to decide how
+	 * to display, possibly using a formatter which is the appropriate place
+	 * following MVC principles. (Modifying
+	 * currentInstance().avgTransactionTime() would require wider-ranging
+	 * refactoring)
+	 * 
+	 * @return number of active sessions of the current instance
+	 */
+    public Float currentInstanceAverageIdlePeriod(){
+    	Float time = null;
+		if (currentInstance() != null){
+        	String idlePeriodString = currentInstance().averageIdlePeriod();
+        	if (! "-".equals(idlePeriodString)){
+        		time = Float.valueOf(idlePeriodString);    			
+        	}
+		}    	
+    	return time;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 }

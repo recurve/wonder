@@ -70,15 +70,21 @@ IFSchedulingIsOn: WOConditional {
 }
 
 InstActiveSessions: WOString {
-	value = currentInstance.activeSessions;
+	value = currentInstanceActiveSessions;
+	numberformat = "#,##0";
+	valueWhenEmpty = "-";
 }
 
 InstAverageIdle: WOString {
-	value = currentInstance.averageIdlePeriod;
+	value = currentInstanceAverageIdlePeriod;
+	numberformat = "0.000";
+	valueWhenEmpty = "-";
 }
 
-InstAverageTransaction: WOString {
-	value = currentInstance.avgTransactionTime;
+InstAverageTransactionTime: WOString {
+	value = currentInstanceAverageTransactionTime;
+	numberformat = "0.000";
+	valueWhenEmpty = "-";
 }
 
 InstConfigureLink: WOHyperlink {
@@ -87,8 +93,8 @@ InstConfigureLink: WOHyperlink {
 }
 
 InstDeathCount: WOString {
-	numberformat = "0";
 	value = currentInstance.deathCount;
+	numberformat = "#,##0";
 }
 
 InstDeathDetailLink: WOHyperlink {
@@ -132,7 +138,8 @@ InstStatusImage: WOImage {
 }
 
 InstTransactions: WOString {
-	value = currentInstance.transactions;
+	value = currentInstance.transactionsValue;
+	numberformat = "#,##0";
 }
 
 InstanceRepetition: WORepetition {
@@ -172,6 +179,15 @@ NavPage: NavigationPage {
 NextShutdown: WOString {
     value = nextShutdown;
 //    dateformat = "%m/%d/%Y %H:%M:%S %Z";
+}
+
+IfNextShutDownIsEnabled: WOConditional {
+	condition = currentInstance.schedulingEnabled.booleanValue;	
+}
+
+IfNextShutDownIsNotEnabled: WOConditional {
+	condition = currentInstance.schedulingEnabled.booleanValue;	
+	negate = true;	
 }
 
 Refresh: WOMetaRefresh {
@@ -263,8 +279,8 @@ ToggleSchedulingLink: WOHyperlink {
 }
 
 TotalActiveSessions: WOString {
-	numberformat = "0";
 	value = totalActiveSessions;
+	numberformat = "#,##0";
 }
 
 TotalAverageIdleTime: WOString {
@@ -272,14 +288,14 @@ TotalAverageIdleTime: WOString {
 	value = totalAverageIdleTime;
 }
 
-TotalAverageTransaction: WOString {
+TotalAverageTransactionTime: WOString {
 	numberformat = "0.000";
-	value = totalAverageTransaction;
+	value = totalAverageTransactionTime;
 }
 
 TotalTransactions: WOString {
-	numberformat = "0";
 	value = totalTransactions;
+	numberformat = "#,##0";
 }
 
 TotalTransactionsForActiveInstances: WOString {
@@ -292,7 +308,15 @@ ActiveSessionsForActiveInstances: WOString {
 	numberformat = "#,##0";	
 }
 
+TotalAverageTransactionTimeForActiveInstances: WOString {
+	value = averageTransactionTimeForActiveInstances;
+	numberformat = "0.000";
+}
 
+TotalAverageIdleTimeForActiveInstances: WOString {
+	value = averageIdleTimeForActiveInstances;
+	numberformat = "0.000";
+}
 
 
 // Start of Add Instance Stuff
@@ -391,4 +415,10 @@ SelectAllLink : WOHyperlink {
 
 SelectNoneLink : WOHyperlink {
   action = selectNoneAction;
+}
+
+TableDataForTotals: WOGenericContainer {
+	elementName = "td";
+	colspan = columnSpanForTotals;
+	class = "label";
 }

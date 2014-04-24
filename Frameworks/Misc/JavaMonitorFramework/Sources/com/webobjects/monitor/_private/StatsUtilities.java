@@ -21,6 +21,35 @@ import com.webobjects.foundation.NSTimestampFormatter;
 public class StatsUtilities {
     public static NSTimestampFormatter dateFormatter = new NSTimestampFormatter("%Y:%m:%d:%H:%M:%S %Z");
 
+
+    /**
+     * For use with a monitored application's instance statistics dictionary.
+     * Identifies the number of transactions processed since the instance was started.
+     */
+    public static final String TRANSACTION_COUNT_KEY = "transactions";
+
+
+    /**
+     * For use with a monitored application's instance statistics dictionary.
+     * Identifies the instance's number of active sessions 
+     */
+    public static final String ACTIVE_SESSION_COUNT_KEY = "activeSessions";
+
+
+    /**
+     * For use with a monitored application's instance statistics dictionary.
+     * Identifies the average transaction duration time for the instance (NOTE: what are the units? seconds? milliseconds?)
+     */
+    public static final String AVERAGE_TRANSACTION_TIME_KEY = "avgTransactionTime";
+
+    
+    /**
+     * For use with a monitored application's instance statistics dictionary.
+     * Identifies the average idle time for the instance (NOTE: what are the units? seconds? milliseconds?)
+     */    
+    public static final String AVERAGE_IDLE_TIME_KEY = "averageIdlePeriod";
+
+
     static public Integer totalTransactionsForApplication(MApplication anApp) {
         int aTotalTrans = 0;
         NSArray anInstArray = anApp.instanceArray();
@@ -33,7 +62,7 @@ public class StatsUtilities {
 
             if (aStatsDict != null) {
                 try {
-                    String aValue = (String) aStatsDict.valueForKey("transactions");
+                    String aValue = (String) aStatsDict.valueForKey(TRANSACTION_COUNT_KEY);
                     aTotalTrans = aTotalTrans + Integer.parseInt(aValue);
                 } catch (Throwable ex) {
                     // do nothing
@@ -51,8 +80,8 @@ public class StatsUtilities {
      * @param monitoredApplication
      * @return
      */
-    public static Integer totalTransactionsForActiveInstancesOfApplication(MApplication monitoredApplication) {
-    	Integer totalTransactions = sumStatisticOfActiveInstances(monitoredApplication, "transactions");
+    public static Integer totalTransactionsForActiveInstancesOfApplication(final MApplication monitoredApplication) {
+    	final Integer totalTransactions = sumStatisticOfActiveInstances(monitoredApplication, TRANSACTION_COUNT_KEY);
         return totalTransactions;
     }
 
@@ -69,7 +98,7 @@ public class StatsUtilities {
 
             if (aStatsDict != null) {
                 try {
-                    String aValue = (String) aStatsDict.valueForKey("activeSessions");
+                    String aValue = (String) aStatsDict.valueForKey(ACTIVE_SESSION_COUNT_KEY);
                     aTotalActiveSessions = aTotalActiveSessions + Integer.parseInt(aValue);
                 } catch (Throwable ex) {
                     // do nothing
@@ -87,8 +116,8 @@ public class StatsUtilities {
      * @param monitoredApplication
      * @return
      */
-    public static Integer totalActiveSessionsForActiveInstancesOfApplication(MApplication monitoredApplication) {
-    	Integer totalActiveSessions = sumStatisticOfActiveInstances(monitoredApplication, "activeSessions");
+    public static Integer totalActiveSessionsForActiveInstancesOfApplication(final MApplication monitoredApplication) {
+    	final Integer totalActiveSessions = sumStatisticOfActiveInstances(monitoredApplication, ACTIVE_SESSION_COUNT_KEY);
         return totalActiveSessions;
     }
 
@@ -122,8 +151,77 @@ public class StatsUtilities {
     }
     
     
+    
+    /**
+     * Calculates and returns the average time duration for the statistic indicated by the given statisticsKey for 
+     * the running instances of the given monitored application.
+     * 
+     * @param monitoredApplication
+     * @param statisticsKey
+     * @return
+     */
+    protected static Float averageTimeStatisticOfActiveInstances(MApplication monitoredApplication, String statisticsKey){
+    	NSArray<MInstance> instances = monitoredApplication.instanceArray();
+        float aTotalTime = (float)0.0;
+        int totalNumberOfTransactions = 0;
+        float cumulativeAverage = (float)0.0;
 
-    static public Float totalAverageTransactionForApplication(MApplication anApp) {
+        for (MInstance instance : instances) {
+        	if (instance.isRunning_M()){
+	            NSDictionary statistics = instance.statistics();
+	            if (statistics != null) {
+	                try {
+	                    String numberOfTransactionsString = (String)statistics.valueForKey(TRANSACTION_COUNT_KEY);
+	                    Integer numberOfTransactions = Integer.valueOf(numberOfTransactionsString);
+	
+	                     if (numberOfTransactions.intValue() > 0) {
+	                         String timeString = (String)statistics.valueForKey(statisticsKey);
+	                         Float aTime = Float.valueOf(timeString);
+	                         aTotalTime = aTotalTime + (numberOfTransactions.intValue() * aTime.floatValue());
+	                         totalNumberOfTransactions = totalNumberOfTransactions + (numberOfTransactions.intValue());
+	                     }
+	                } catch (Throwable ex) {
+	                    // do nothing
+	                }
+	            }
+        	}
+		}
+
+        if (totalNumberOfTransactions > 0) {
+            cumulativeAverage = aTotalTime / totalNumberOfTransactions;
+        }
+
+        return Float.valueOf(cumulativeAverage);    
+    }
+    
+    
+    /**
+     * Calculates and returns the average transaction time across all running instances 
+     * of the given monitored application.
+     * 
+     * @param monitoredApplication
+     * @return
+     */
+    public static Float averageTransactionTimeOfActiveInstances(final MApplication monitoredApplication){
+    	final Float average = averageTimeStatisticOfActiveInstances(monitoredApplication, AVERAGE_TRANSACTION_TIME_KEY);
+    	return average;
+    }
+    
+    
+    /**
+     * Calculates and returns the average idle time across all running instances 
+     * of the given monitored application.
+     * 
+     * @param monitoredApplication
+     * @return
+     */
+    public static Float averageIdleTimeOfActiveInstances(final MApplication monitoredApplication){
+    	final Float average = averageTimeStatisticOfActiveInstances(monitoredApplication, AVERAGE_IDLE_TIME_KEY);
+    	return average;
+    }
+
+
+    public static Float totalAverageTransactionTimeForApplication(MApplication anApp) {
         NSArray anInstArray = anApp.instanceArray();
         float aTotalTime = (float)0.0;
         int aTotalTrans = 0;
@@ -137,11 +235,11 @@ public class StatsUtilities {
 
             if (aStatsDict != null) {
                 try {
-                    String aValue = (String)aStatsDict.valueForKey("transactions");
+                    String aValue = (String)aStatsDict.valueForKey(TRANSACTION_COUNT_KEY);
                     Integer aTrans = Integer.valueOf(aValue);
 
                     if (aTrans.intValue() > 0) {
-                        aValue = (String)aStatsDict.valueForKey("avgTransactionTime");
+                        aValue = (String)aStatsDict.valueForKey(AVERAGE_TRANSACTION_TIME_KEY);
                         Float aTime = Float.valueOf(aValue);
                         aTotalTime = aTotalTime + (aTrans.intValue() * aTime.floatValue());
                         aTotalTrans = aTotalTrans + (aTrans.intValue());
@@ -174,11 +272,11 @@ public class StatsUtilities {
 
             if (aStatsDict != null) {
                 try {
-                    String aValue = (String)aStatsDict.valueForKey("transactions");
+                    String aValue = (String)aStatsDict.valueForKey(TRANSACTION_COUNT_KEY);
                     Integer aTrans = Integer.valueOf(aValue);
 
                      if (aTrans.intValue() > 0) {
-                         String idleString = (String)aStatsDict.valueForKey("averageIdlePeriod");
+                         String idleString = (String)aStatsDict.valueForKey(AVERAGE_IDLE_TIME_KEY);
                          Float aTime = Float.valueOf(idleString);
                          aTotalTime = aTotalTime + (aTrans.intValue() * aTime.floatValue());
                          aTotalTrans = aTotalTrans + (aTrans.intValue());
@@ -212,7 +310,7 @@ public class StatsUtilities {
             if (aStatsDict != null) {
                 aStartDate = (String)aStatsDict.valueForKey("startedAt");
                 try {
-                    aTrans = Integer.valueOf((String) aStatsDict.valueForKey("transactions"));
+                    aTrans = Integer.valueOf((String) aStatsDict.valueForKey(TRANSACTION_COUNT_KEY));
                 } catch (Throwable ex) {
                     aTrans = null;
                 }

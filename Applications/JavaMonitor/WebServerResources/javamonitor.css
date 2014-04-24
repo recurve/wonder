@@ -415,15 +415,36 @@ td.PushButtonWrapper {
 .ApplicationDetailsBox td.TransactionsCount,
 .ApplicationDetailsBox td.DeathCount,
 .ApplicationDetailsBox td.ActiveSessionCount,
-.ApplicationDetailsBox td.AverageTransactionsCount,
+.ApplicationDetailsBox td.AverageTransactionTime,
 .ApplicationDetailsBox td.AverageIdlePeriod,
 .ApplicationDetailsBox td.TotalTransactionCount,
 .ApplicationDetailsBox td.TotalActiveSessions,
-.ApplicationDetailsBox td.TotalAverageTransaction,
+.ApplicationDetailsBox td.TotalAverageTransactionTime,
 .ApplicationDetailsBox td.TotalAverageIdleTime
 {
 	text-align: right;
 }
+
+div.ApplicationDetailsBox table tr th div.units,
+div.ApplicationDetailsBox table tr th div.subhead
+{
+	font-size: 0.8em;
+	font-style: italic;
+	font-weight: normal;
+}
+
+div.ApplicationDetailsBox table tr th.instanceName,
+div.ApplicationDetailsBox table tr td.instanceName
+{
+	white-space: nowrap;
+}
+
+div.NoNextScheduledShutDown
+{
+	text-align: center;
+}
+
+
 
 .ApplicationsListBox table tr.Totals td,
 .ApplicationsListBox table tr.Totals th
