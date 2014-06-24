@@ -160,7 +160,7 @@ public class ERXToManyQualifier extends ERXKeyValueQualifier implements Cloneabl
 					if (StringUtils.isNotBlank(sqlIdentifier)) {
 						sqlIdentifier = expression.sqlStringForSchemaObjectName(sqlIdentifier);
 
-						if (StringUtils.isNotEmpty(sqlIdentifier)) {
+						if (safeSnippet.length() > 0) {
 							safeSnippet.append(".");
 						} 						
 						safeSnippet.append(sqlIdentifier);
