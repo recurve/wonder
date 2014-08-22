@@ -11,6 +11,7 @@ import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSRange;
 
 import er.extensions.eof.ERXKey;
+import er.extensions.eof.qualifiers.ERXExistsQualifier;
 
 /**
  * Takes a qualifier, traverses every subqualifier, and prepends every keypath
@@ -99,6 +100,15 @@ public class ERXPrefixQualifierTraversal extends ERXQualifierTraversal {
 	@Override
 	protected boolean traverseTrueQualifier(ERXTrueQualifier q) {
 		_qualifiers.addObject(q);
+		return true;
+	}
+	
+	@Override
+	protected boolean traverseERXExistsQualifier(ERXExistsQualifier q) {
+		final String baseKeyPath = _prefix + q.baseKeyPath();
+		final EOQualifier subqualifier = q.subqualifier();
+		final ERXExistsQualifier prefixedQualifier = new ERXExistsQualifier(subqualifier, baseKeyPath, ERXExistsQualifier.UseSQLInClause);
+		_qualifiers.add(prefixedQualifier);
 		return true;
 	}
 

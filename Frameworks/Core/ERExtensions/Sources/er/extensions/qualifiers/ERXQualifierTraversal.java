@@ -17,6 +17,8 @@ import com.webobjects.eocontrol.EONotQualifier;
 import com.webobjects.eocontrol.EOOrQualifier;
 import com.webobjects.eocontrol.EOQualifierEvaluation;
 
+import er.extensions.eof.qualifiers.ERXExistsQualifier;
+
 /**
  * Traverse a network of qualifiers until a traversal method returns false.
  * Subclass and implement the methods you need.
@@ -126,6 +128,17 @@ public class ERXQualifierTraversal {
 	}
 
 	/**
+	 * Should traverse exists qualifier?
+	 *
+	 * @param q
+	 *            the qualifier to process
+	 * @return should traverse false qualifier
+	 */
+	protected boolean traverseERXExistsQualifier(ERXExistsQualifier q) {
+		return true;
+	}
+
+	/**
 	 * Traverses the supplied qualifier
 	 * 
 	 * @param q
@@ -199,6 +212,9 @@ public class ERXQualifierTraversal {
 			else if (q instanceof ERXFalseQualifier) {
 				result = traverseFalseQualifier((ERXFalseQualifier) q) ? Boolean.TRUE : Boolean.FALSE;
 			}
+			else if (q instanceof ERXExistsQualifier) {
+				result = traverseERXExistsQualifier((ERXExistsQualifier) q) ? Boolean.TRUE : Boolean.FALSE;
+			}
 			else {
 				result = traverseUnknownQualifier(q) ? Boolean.TRUE : Boolean.FALSE;
 			}
@@ -210,7 +226,7 @@ public class ERXQualifierTraversal {
 	}
 
 	/**
-	 * Visit every descendent qualifier in the given qualifier tree in a preorder traversal.
+	 * Visit every descendant qualifier in the given qualifier tree in a pre-order traversal.
 	 * 
 	 * @param q
 	 *            the root qualifier to traverse
@@ -220,7 +236,7 @@ public class ERXQualifierTraversal {
 	}
 
 	/**
-	 * Visit every descendent qualifier in the given qualifier tree.
+	 * Visit every descendant qualifier in the given qualifier tree.
 	 * 
 	 * @param q
 	 *            the root qualifier to traverse
