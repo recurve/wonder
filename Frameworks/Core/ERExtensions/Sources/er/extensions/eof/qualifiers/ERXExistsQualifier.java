@@ -451,9 +451,15 @@ public class ERXExistsQualifier extends EOQualifier implements Cloneable, NSCodi
 	
 	@Override
 	public boolean evaluateWithObject(Object object) {
+		if (object == null) {
+			throw new IllegalArgumentException("object cannot be null for ERXExistsQualfier");
+		}
+		
 		boolean match = false;
-		NSKeyValueCodingAdditions obj = (NSKeyValueCodingAdditions) object;
-		if (obj != null && subqualifier != null) {
+		NSKeyValueCodingAdditions obj = (NSKeyValueCodingAdditions) object;		
+		if (subqualifier == null) {
+			match = true;
+		} else {
 			NSKeyValueCodingAdditions finalObj = (NSKeyValueCodingAdditions) obj.valueForKeyPath(baseKeyPath);
 			if (finalObj != null) {
 				if (finalObj instanceof NSArray) {
