@@ -306,9 +306,11 @@ public class CCDatePicker extends ERXStatelessComponent {
      */
 	@Override
     public void validationFailedWithException(Throwable t, Object value, String keyPath) {
-    	if (keyPath != null && "<none>".equals(keyPath) && t instanceof ValidationException) {
+    	boolean isCCDatePickerKeypathUseless = keyPath != null && (keyPath.equals("<none>") || keyPath.equals("value"));
+		if (isCCDatePickerKeypathUseless && t instanceof ValidationException) {
+			// convert to a more useful keypath that was bound outside of CCDatePicker by the parent component.
     		ValidationException e = (ValidationException) t;
-    		WOAssociation valueAssociation = (WOAssociation) _keyAssociations.valueForKey("value");
+    		WOAssociation valueAssociation = _associationWithName("value");
     		if (valueAssociation != null) {
     			keyPath = valueAssociation.keyPath();
     		}
